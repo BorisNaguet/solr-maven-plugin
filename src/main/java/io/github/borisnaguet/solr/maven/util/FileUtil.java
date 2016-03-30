@@ -1,5 +1,6 @@
 package io.github.borisnaguet.solr.maven.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -7,11 +8,35 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
+import com.google.common.base.Charsets;
 
+/**
+ * Utility class to manage files
+ * 
+ * @author BorisNaguet
+ *
+ */
 public class FileUtil {
 	private FileUtil() {
+	}
+	
+	/**
+	 * Fully read into memory a File
+	 * @param file
+	 * @return
+	 * @throws MojoExecutionException
+	 */
+	public static String read(File file) throws MojoExecutionException {
+		//read solr.xml content
+		try {
+			return com.google.common.io.Files.toString(file, Charsets.UTF_8);
+		}
+		catch (IOException e) {
+			throw new MojoExecutionException("Can't read " + file.getAbsolutePath(), e);
+		}
 	}
 	
 	/**

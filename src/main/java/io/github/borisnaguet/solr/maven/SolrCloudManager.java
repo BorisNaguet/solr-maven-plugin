@@ -1,15 +1,12 @@
 package io.github.borisnaguet.solr.maven;
 
+import static io.github.borisnaguet.solr.maven.util.FileUtil.read;
 import static org.apache.solr.cloud.MiniSolrCloudCluster.DEFAULT_CLOUD_SOLR_XML;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -17,14 +14,28 @@ import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.cloud.ZkTestServer;
 
-import com.google.common.base.Charsets;
-
 import io.github.borisnaguet.solr.maven.util.FileUtil;
 
+/**
+ * Wrapper around SolrCloudManager to manage operation on the cloud, the maven way (with {@link Log}, and returning {@link MojoExecutionException}...)
+ * 
+ * 
+ * @author BorisNaguet
+ *
+ */
 public class SolrCloudManager {
 	private final Path baseDir;
+	/**
+	 * number of Solr servers that will be started
+	 */
 	private final int numServers;
+	/**
+	 * Zookeeper port
+	 */
 	private final int zkPort;
+	/**
+	 * content of the solr.xml file that will be uploaded to Zookeeper
+	 */
 	private final String solrXmlContent;
 	
 	private MiniSolrCloudCluster solrCloud;
@@ -45,16 +56,12 @@ public class SolrCloudManager {
 		this.solrXmlContent = solrXmlContent;
 	}
 	
-	private static String read(File solrXmlFile) throws MojoExecutionException {
-		//read solr.xml content
-		try {
-			return com.google.common.io.Files.toString(solrXmlFile, Charsets.UTF_8);
-		}
-		catch (IOException e) {
-			throw new MojoExecutionException("Can't read " + solrXmlFile.getAbsolutePath(), e);
-		}
-	}
-	
+	/**
+	 * Start the {@link MiniSolrCloudCluster} 
+	 * 
+	 * @param log
+	 * @throws MojoExecutionException
+	 */
 	public synchronized void startCluster(Log log) throws MojoExecutionException {
 		if(solrCloud != null) {
 			throw new MojoExecutionException("Solr already started");
@@ -93,6 +100,11 @@ public class SolrCloudManager {
 //		solrCloud.uploadConfigDir(new File("solrcloud/conf"), configName);
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @param log
+	 */
 	public synchronized void createCollection(Log log) {
 		log.debug("About to createCollection");
 		
@@ -100,6 +112,12 @@ public class SolrCloudManager {
 //		solrCloud.createCollection(colName, 1, 1, configName, null);
 	}
 	
+	/**
+	 * Stop the cluster and clean
+	 * 
+	 * @param log
+	 * @throws MojoExecutionException
+	 */
 	public synchronized void stopCluster(Log log) throws MojoExecutionException {
 		log.debug("About to stopCluster");
 		try {
@@ -117,7 +135,11 @@ public class SolrCloudManager {
 		}
 	}
 	
-	public synchronized void clean(Log log) {
+	/**
+	 * Removes the {@link #baseDir}
+	 * @param log
+	 */
+	protected synchronized void clean(Log log) {
 		log.debug("About to clean");
 		if(baseDir != null && Files.exists(baseDir)) {
 			try {
