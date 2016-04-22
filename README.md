@@ -7,11 +7,11 @@ A maven plugin to start/stop Apache Solr Cloud 5
 ## Install
 Available on maven Central (but this version is not usable yet)
 ```xml
-			<plugin>
-        <groupId>io.github.borisnaguet</groupId>
-        <artifactId>solr-maven-plugin</artifactId>
-        <version>0.0.1</version>
-			</plugin>
+<plugin>
+    <groupId>io.github.borisnaguet</groupId>
+    <artifactId>solr-maven-plugin</artifactId>
+    <version>0.0.1</version>
+</plugin>
 ```
 
 ## Doc
