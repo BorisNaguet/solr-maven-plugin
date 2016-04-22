@@ -14,4 +14,14 @@ Available on maven Central (but this version is not usable yet)
 </plugin>
 ```
 
-## Doc
+## Use
+Please, see test project for the moment.
+
+## Build
+Well, maven install ?
+
+## Contribute
+Yes!
+
+Please fill an issue, or a PR.
+https://github.com/BorisNaguet/solr-maven-plugin/issues
