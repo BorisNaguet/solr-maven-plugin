@@ -193,18 +193,19 @@
 			<artifactId>maven-core</artifactId>
 			<version>3.3.9</version>
 		</dependency>
-		
+
+		<!-- JUnit is not in scope test, because it's used by solr-test-framework that we use (needed to compile for the moment) -->		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+		</dependency>
+
     <!-- Test dependencies -->
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-verifier</artifactId>
 			<version>1.6</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
