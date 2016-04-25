@@ -5,20 +5,22 @@
 	<groupId>io.github.borisnaguet</groupId>
 	<artifactId>solr-maven-plugin-test</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
-	
+
 	<name>${project.artifactId}</name>
 
 	<description>
 		Test project for the solr maven plugin. 
 	</description>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<!-- DO NOT deploy this test module on Nexus -->
+		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
-		
+
 	<build>
 		<plugins>
 			<plugin>
@@ -49,14 +51,14 @@
 							<goal>stop-solrcloud</goal>
 						</goals>
 						<configuration>
-						
+
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.solr</groupId>
