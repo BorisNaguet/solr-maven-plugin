@@ -33,11 +33,13 @@
 							<goal>start-solrcloud</goal>
 						</goals>
 						<configuration>
+						<!-- 
 							<uploadConfig>false</uploadConfig>
 							<collectionsToCreate>
 								<param>col1</param>
 								<param>col2</param>
 							</collectionsToCreate>
+						-->
 						</configuration>
 					</execution>
 					<execution>
