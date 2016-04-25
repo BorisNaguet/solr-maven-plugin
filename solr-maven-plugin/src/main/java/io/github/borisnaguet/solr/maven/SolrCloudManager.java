@@ -69,7 +69,6 @@ public class SolrCloudManager {
 		this.baseDir = baseDir;
 		this.numServers = numServers;
 		this.zkPort = zkPort;
-		// TODO: don't keep it in memory?
 		this.solrXmlContent = solrXmlContent;
 		this.configName = configName;
 	}
@@ -105,7 +104,12 @@ public class SolrCloudManager {
 		// Start Solr Cluster
 		try {
 			log.debug("Will start MiniSolrCloudCluster");
-			solrCloud = new MiniSolrCloudCluster(numServers, baseDir, solrXmlContent, JettyConfig.builder().build(), zkTestServer);
+			
+			JettyConfig jettyConfig = JettyConfig.builder()
+					.stopAtShutdown(false)
+					.build();
+			
+			solrCloud = new MiniSolrCloudCluster(numServers, baseDir, solrXmlContent, jettyConfig, zkTestServer);
 			log.debug("MiniSolrCloudCluster started");
 		}
 		catch (Exception e) {
@@ -124,7 +128,6 @@ public class SolrCloudManager {
 		try (SolrZkClient zkClient = new SolrZkClient(solrCloud.getZkServer().getZkAddress(), TIMEOUT, TIMEOUT, null)) {
 			ZkConfigManager manager = new ZkConfigManager(zkClient);
 			if(manager.configExists(configName)) {
-				//TODO: optional (keep the existing one)?
 				throw new MojoExecutionException("Config " + configName + " already exists on ZK");
 			}
 
@@ -172,11 +175,7 @@ public class SolrCloudManager {
 			throw new MojoExecutionException("Can't stop solr", e);
 		}
 		finally {
-			try {
-				Thread.sleep(2_000);
-			}
-			catch (InterruptedException e) {
-			}
+			//TODO: for the moment it doesn't work (file is not released when Solr shuts down)
 			clean(log);
 		}
 	}
