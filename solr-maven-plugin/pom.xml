@@ -19,7 +19,9 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
+	
+	<inceptionYear>2016</inceptionYear>
+	
 	<scm>
 		<url>https://github.com/BorisNaguet/solr-maven-plugin</url>
 		<!-- see later for right connection url -->

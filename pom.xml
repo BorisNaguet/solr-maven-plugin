@@ -14,6 +14,14 @@
 		but it's easier to launch build and integration tests.
 	</description>
 
+	<ciManagement>
+		<url>https://travis-ci.org/BorisNaguet/solr-maven-plugin/</url>
+		<system>travis</system>
+		<notifiers>
+			<notifier><address>${env.EMAIL_PERSO}</address></notifier>
+		</notifiers>
+	</ciManagement>
+
 	<modules>
 		<module>solr-maven-plugin</module>
 		<module>solr-maven-plugin-test</module>
