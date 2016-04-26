@@ -5,12 +5,35 @@
 A maven plugin to start/stop Apache Solr Cloud 5
 
 ## Install
-Available on maven Central (but this version is not usable yet)
+Releases available on maven Central (but this version is not usable yet)
 ```xml
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
     <version>0.0.1</version>
+</plugin>
+```
+
+Snapshots (pushed automatically from Travis, on each push) available on Sonatype repository:
+```xml
+<pluginRepositories>
+	<pluginRepository>
+		<id>ossrh</id>
+		<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		<releases>
+			<enabled>false</enabled>
+		</releases>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+	</pluginRepository>
+</pluginRepositories>
+```
+```xml
+<plugin>
+    <groupId>io.github.borisnaguet</groupId>
+    <artifactId>solr-maven-plugin</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
 </plugin>
 ```
 
