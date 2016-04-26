@@ -21,7 +21,22 @@
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
+	<!-- releases are on Maven Central, but snapshot must be fetched from ossrh -->
+	<!-- of course, this is just for manual tests, as building from source works as well -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
+		<defaultGoal>package</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>io.github.borisnaguet</groupId>
