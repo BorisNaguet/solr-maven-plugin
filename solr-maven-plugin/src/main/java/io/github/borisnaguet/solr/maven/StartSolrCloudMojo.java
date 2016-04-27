@@ -1,6 +1,7 @@
 package io.github.borisnaguet.solr.maven;
 
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PRE_INTEGRATION_TEST;
+import static org.apache.solr.cloud.MiniSolrCloudCluster.DEFAULT_CLOUD_SOLR_XML;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +13,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.solr.cloud.MiniSolrCloudCluster;
 
 import io.github.borisnaguet.solr.maven.util.FileUtil;
 
@@ -89,7 +91,9 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		
 		// 2- Init & start Solr cloud (with ZK)
 		Path confDir = Paths.get(confToUploadDir);
-		SolrCloudManager cloudManager = new SolrCloudManager(dataDir, confDir, numServers, zkPort, configName);
+		//TODO: get solrXml from config (+ option to upload it?)
+		String solrXml = uploadConfig ? DEFAULT_CLOUD_SOLR_XML : null;
+		SolrCloudManager cloudManager = new SolrCloudManager(dataDir, confDir, numServers, zkPort, solrXml, configName);
 		
 		if(Files.notExists(dataDir) || FileUtil.isEmptyDir(dataDir)) {
 			cloudManager.canDeleteDataDir();
@@ -103,6 +107,8 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 			if(Files.notExists(confDir) || FileUtil.isEmptyDir(confDir)) {
 				cloudManager.canDeleteConfDir();
 				
+				getLog().info("Will extract default conf to " + confDir);
+				
 				FileUtil.extractFileFromClasspath("conf/_rest_managed.json", confDir.resolve("_rest_managed.json"));
 				FileUtil.extractFileFromClasspath("conf/currency.xml", confDir.resolve("currency.xml"));
 				FileUtil.extractFileFromClasspath("conf/managed-schema", confDir.resolve("managed-schema"));
@@ -113,6 +119,7 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 				FileUtil.extractFileFromClasspath("conf/lang/stopwords_en.txt", confDir.resolve("lang/stopwords_en.txt"));
 			}
 			
+			getLog().info("Will upload conf from " + confDir + "to ZK config: " + configName );
 			cloudManager.uploadConfig(getLog());
 		}
 

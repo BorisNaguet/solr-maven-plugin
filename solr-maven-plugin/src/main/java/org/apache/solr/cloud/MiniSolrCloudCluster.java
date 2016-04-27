@@ -195,7 +195,9 @@ public class MiniSolrCloudCluster {
 
     try(SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(),
         AbstractZkTestCase.TIMEOUT, AbstractZkTestCase.TIMEOUT, null)) {
-      zkClient.makePath("/solr/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
+    	if(solrXml != null) {
+			zkClient.makePath("/solr/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
+		}
       if (jettyConfig.sslConfig != null && jettyConfig.sslConfig.isSSLMode()) {
         zkClient.makePath("/solr" + ZkStateReader.CLUSTER_PROPS, "{'urlScheme':'https'}".getBytes(Charsets.UTF_8), true);
       }
@@ -258,7 +260,9 @@ public class MiniSolrCloudCluster {
 
   private Path createInstancePath(String name) throws IOException {
     Path instancePath = baseDir.resolve(name);
-    Files.createDirectory(instancePath);
+    if(Files.notExists(instancePath)) {
+		Files.createDirectory(instancePath);
+	}
     return instancePath;
   }
 
