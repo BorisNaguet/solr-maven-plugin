@@ -8,13 +8,13 @@ import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope.Scope;
 
 @ThreadLeakScope(Scope.NONE)
-public class TestRequester extends RandomizedTest {
+public class ITRequester extends RandomizedTest {
 
 	private static Requester requester;
 
 	@BeforeClass
 	public static void initTest() {
-		requester = new Requester();
+		requester = new Requester("testCol", 8887);
 	}
 	
 	@Test
@@ -24,7 +24,8 @@ public class TestRequester extends RandomizedTest {
 	
 	@Test
 	public void testAdd() throws Exception {
-		//'attr_*' dynamic field is only defined in default conf (not in 'solr-it-conf')
-		requester.addDoc_withAttrName();
+		//'name' field is only defined in 'solr-it-conf'
+		//we're always adding a doc with the same id, so the index will not grow
+		requester.addDoc_WithName();
 	}
 }

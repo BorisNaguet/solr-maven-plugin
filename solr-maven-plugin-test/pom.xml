@@ -35,6 +35,7 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+	
 	<build>
 		<defaultGoal>package</defaultGoal>
 		<plugins>
@@ -43,35 +44,61 @@
 				<artifactId>solr-maven-plugin</artifactId>
 				<version>0.1.0-SNAPSHOT</version>
 				<executions>
+					<!-- Unit tests: tests individual configuration parameters -->
 					<execution>
-						<id>start</id>
+						<id>start-tests</id>
 						<phase>process-test-resources</phase>
 						<goals>
 							<goal>start-solrcloud</goal>
 						</goals>
-						<configuration>
-						<!-- 
-							<uploadConfig>false</uploadConfig>
-							<collectionsToCreate>
-								<param>col1</param>
-								<param>col2</param>
-							</collectionsToCreate>
-						-->
-						</configuration>
 					</execution>
 					<execution>
-						<id>stop</id>
+						<id>stop-tests</id>
 						<phase>prepare-package</phase>
 						<goals>
 							<goal>stop-solrcloud</goal>
 						</goals>
+					</execution>
+					
+					<!-- INTEGRATION tests: use of all default config -->
+					<execution>
+						<id>start-IT</id>
+						<goals>
+							<goal>start-solrcloud</goal>
+						</goals>
 						<configuration>
-
+							<zkPort>8887</zkPort>
+							
+							<uploadConfig>true</uploadConfig>
+							<confToUploadDir>solr-alt-conf</confToUploadDir>
+							
+							<createCols>false</createCols>
+							<baseDir>target/solr-it-data</baseDir>
 						</configuration>
+					</execution>
+					<execution>
+						<id>stop-IT</id>
+						<goals>
+							<goal>stop-solrcloud</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.19.1</version>
+			</plugin>
 		</plugins>
+		
 	</build>
 
 	<dependencies>

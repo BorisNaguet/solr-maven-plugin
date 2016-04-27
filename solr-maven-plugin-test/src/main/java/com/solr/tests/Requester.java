@@ -10,11 +10,11 @@ public class Requester {
 	private CloudSolrClient cloudSolrClient;
 
 	public Requester() {
-		this("default");
+		this("default", 8889);
 	}
 	
-	public Requester(String collection) {
-		cloudSolrClient = new CloudSolrClient("localhost:8889/solr");
+	public Requester(String collection, int port) {
+		cloudSolrClient = new CloudSolrClient("localhost:" + port + "/solr");
 		cloudSolrClient.setDefaultCollection(collection);
 	}
 
@@ -23,13 +23,19 @@ public class Requester {
 		return pingResponse.getStatus();
 	}
 	
-	public void addDoc() throws Exception {
+	public void addDoc_withAttrName() throws Exception {
 		SolrInputDocument doc = new SolrInputDocument();
 		doc.addField("id", "1234");
-		doc.addField("attr_name", "A lovely summer holiday");
+		doc.addField("attr_name", "The doc name as attr_name");
 		cloudSolrClient.add(doc);
 		cloudSolrClient.commit();
-		
 	}
 	
+	public void addDoc_WithName() throws Exception {
+		SolrInputDocument doc = new SolrInputDocument();
+		doc.addField("id", "1234");
+		doc.addField("name", "The doc name");
+		cloudSolrClient.add(doc);
+		cloudSolrClient.commit();
+	}
 }
