@@ -63,7 +63,6 @@ public class FileUtil {
 			catch (IOException e) {
 				log.warn("Can't delete " + path.toAbsolutePath() + " - "+ e.getMessage() + " (will try on exit)");
 				log.debug(e);
-				path.toFile().deleteOnExit();
 			}
 		}
 	}
@@ -82,7 +81,6 @@ public class FileUtil {
 				Files.deleteIfExists(dir);
 			}
 			catch(IOException e) {
-				dir.toFile().deleteOnExit();
 				throw e;
 			}
 			return super.postVisitDirectory(dir, exc);
@@ -95,7 +93,6 @@ public class FileUtil {
 				Files.delete(path);
 			}
 			catch(IOException e) {
-				path.toFile().deleteOnExit();
 				throw e;
 			}
 			return FileVisitResult.CONTINUE;

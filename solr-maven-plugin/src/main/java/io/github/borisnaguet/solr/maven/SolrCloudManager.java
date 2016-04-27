@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.cloud.ZkTestServer;
+import org.apache.solr.cloud.ZkTestServer.LimitViolationAction;
 import org.apache.solr.common.cloud.SolrZkClient;
 import org.apache.solr.common.cloud.ZkConfigManager;
 
@@ -61,6 +62,8 @@ public class SolrCloudManager {
 
 	private MiniSolrCloudCluster solrCloud;
 
+	private ZkTestServer zkTestServer;
+
 	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String configName) {
 		this(dataDir, confDir, numServers, zkPort, DEFAULT_CLOUD_SOLR_XML, configName);
 	}
@@ -101,7 +104,9 @@ public class SolrCloudManager {
 		log.debug("About to startCluster");
 
 		String zkDir = dataDir.resolve("zookeeper/server1/data").toString();
-		ZkTestServer zkTestServer = new ZkTestServer(zkDir, zkPort);
+		zkTestServer = new ZkTestServer(zkDir, zkPort);
+		//TODO: look more into why we need that
+		zkTestServer.setViolationReportAction(LimitViolationAction.IGNORE);
 		try {
 			log.debug("Will start ZkTestServer");
 			zkTestServer.run();
@@ -139,8 +144,10 @@ public class SolrCloudManager {
 			if(manager.configExists(configName)) {
 				throw new MojoExecutionException("Config " + configName + " already exists on ZK");
 			}
-
+			
+			log.debug("about to upload config from " + confDir + " to " + configName);
 			manager.uploadConfigDir(confDir, configName);
+			log.debug("Config uploaded");
 		}
 		catch (IOException e) {
 			throw new MojoExecutionException("Can't upload solr config in ZK " + configName, e);
@@ -181,7 +188,16 @@ public class SolrCloudManager {
 			}
 		}
 		catch (Exception e) {
+			log.error("Can't stop Solr, will try to stop zk before launching Exception");
 			throw new MojoExecutionException("Can't stop solr", e);
+		}
+		finally {
+			try {
+				zkTestServer.shutdown();
+			}
+			catch (IOException | InterruptedException e) {
+				throw new MojoExecutionException("Can't stop zookeeper", e);
+			}
 		}
 	}
 
