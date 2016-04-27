@@ -40,7 +40,12 @@ import io.github.borisnaguet.solr.maven.util.FileUtil;
 public class SolrCloudManager {
 	private final String configName;
 
-	private final Path baseDir;
+	private final Path dataDir;
+	private boolean canDeleteDataDir = false;
+	
+	private final Path confDir;
+	private boolean canDeleteConfDir = false;
+	
 	/**
 	 * number of Solr servers that will be started
 	 */
@@ -56,23 +61,32 @@ public class SolrCloudManager {
 
 	private MiniSolrCloudCluster solrCloud;
 
-	public SolrCloudManager(Path baseDir, int numServers, int zkPort, String configName) {
-		this(baseDir, numServers, zkPort, DEFAULT_CLOUD_SOLR_XML, configName);
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String configName) {
+		this(dataDir, confDir, numServers, zkPort, DEFAULT_CLOUD_SOLR_XML, configName);
 	}
 
-	public SolrCloudManager(Path baseDir, int numServers, int zkPort, File solrXmlFile, String configName)
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, File solrXmlFile, String configName)
 			throws MojoExecutionException {
-		this(baseDir, numServers, zkPort, read(solrXmlFile), configName);
+		this(dataDir, confDir, numServers, zkPort, read(solrXmlFile), configName);
 	}
 
-	public SolrCloudManager(Path baseDir, int numServers, int zkPort, String solrXmlContent, String configName) {
-		this.baseDir = baseDir;
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String solrXmlContent, String configName) {
+		this.dataDir = dataDir;
+		this.confDir = confDir;
 		this.numServers = numServers;
 		this.zkPort = zkPort;
 		this.solrXmlContent = solrXmlContent;
 		this.configName = configName;
 	}
 
+	public void canDeleteDataDir() {
+		this.canDeleteDataDir = true;
+	}
+
+	public void canDeleteConfDir() {
+		this.canDeleteConfDir = true;
+	}
+	
 	/**
 	 * Start the {@link MiniSolrCloudCluster}
 	 * 
@@ -86,10 +100,7 @@ public class SolrCloudManager {
 
 		log.debug("About to startCluster");
 
-		// just in case it hasn't been cleaned previously
-		clean(log);
-
-		String zkDir = baseDir.resolve("zookeeper/server1/data").toString();
+		String zkDir = dataDir.resolve("zookeeper/server1/data").toString();
 		ZkTestServer zkTestServer = new ZkTestServer(zkDir, zkPort);
 		try {
 			log.debug("Will start ZkTestServer");
@@ -97,7 +108,6 @@ public class SolrCloudManager {
 			log.debug("ZkTestServer started");
 		}
 		catch (InterruptedException e) {
-			clean(log);
 			throw new MojoExecutionException("Can't start ZooKeeper test server", e);
 		}
 
@@ -109,11 +119,10 @@ public class SolrCloudManager {
 					.stopAtShutdown(false)
 					.build();
 			
-			solrCloud = new MiniSolrCloudCluster(numServers, baseDir, solrXmlContent, jettyConfig, zkTestServer);
+			solrCloud = new MiniSolrCloudCluster(numServers, dataDir, solrXmlContent, jettyConfig, zkTestServer);
 			log.debug("MiniSolrCloudCluster started");
 		}
 		catch (Exception e) {
-			clean(log);
 			throw new MojoExecutionException("Can't start solr", e);
 		}
 	}
@@ -124,14 +133,14 @@ public class SolrCloudManager {
 	 * @param log
 	 * @throws MojoExecutionException
 	 */
-	public synchronized void uploadConfig(Log log, Path configDir) throws MojoExecutionException {
+	public synchronized void uploadConfig(Log log) throws MojoExecutionException {
 		try (SolrZkClient zkClient = new SolrZkClient(solrCloud.getZkServer().getZkAddress(), TIMEOUT, TIMEOUT, null)) {
 			ZkConfigManager manager = new ZkConfigManager(zkClient);
 			if(manager.configExists(configName)) {
 				throw new MojoExecutionException("Config " + configName + " already exists on ZK");
 			}
 
-			manager.uploadConfigDir(configDir, configName);
+			manager.uploadConfigDir(confDir, configName);
 		}
 		catch (IOException e) {
 			throw new MojoExecutionException("Can't upload solr config in ZK " + configName, e);
@@ -174,23 +183,37 @@ public class SolrCloudManager {
 		catch (Exception e) {
 			throw new MojoExecutionException("Can't stop solr", e);
 		}
-		finally {
-			//TODO: for the moment it doesn't work (file is not released when Solr shuts down)
-			clean(log);
-		}
 	}
 
+	public synchronized void cleanDataDir(Log log) {
+		if(canDeleteDataDir) {
+			clean(log, dataDir);
+		}
+		else {
+			log.warn("Can't delete data dir: " + dataDir + " - content was already existing");
+		}
+	}
+	
+	public synchronized void cleanConfDir(Log log) {
+		if(canDeleteConfDir) {
+			clean(log, confDir);
+		}
+		else {
+			log.warn("Can't delete conf dir: " + confDir + " - content was already existing");
+		}
+	}
+	
 	/**
 	 * Removes the {@link #baseDir}
 	 * 
 	 * @param log
 	 */
-	protected synchronized void clean(Log log) {
+	protected synchronized void clean(Log log, Path dir) {
 		log.debug("About to clean");
-		if (baseDir != null && Files.exists(baseDir)) {
-			log.debug("Will clean " + baseDir);
-			FileUtil.delete(log, baseDir);
-			log.debug(baseDir + " deleted");
+		if (dir != null && Files.exists(dir)) {
+			log.debug("Will clean " + dir);
+			FileUtil.delete(log, dir);
+			log.debug(dir + " deleted");
 		}
 	}
 }

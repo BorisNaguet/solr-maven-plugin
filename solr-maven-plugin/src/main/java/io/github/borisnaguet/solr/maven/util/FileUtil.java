@@ -61,8 +61,9 @@ public class FileUtil {
 				}
 			}
 			catch (IOException e) {
-				log.warn("Can't delete " + path.toAbsolutePath() + " - "+ e.getMessage());
+				log.warn("Can't delete " + path.toAbsolutePath() + " - "+ e.getMessage() + " (will try on exit)");
 				log.debug(e);
+				path.toFile().deleteOnExit();
 			}
 		}
 	}
@@ -77,28 +78,53 @@ public class FileUtil {
 		@Override
 		public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 			log.debug("Will delete dir " + dir);
-			Files.deleteIfExists(dir);
+			try {
+				Files.deleteIfExists(dir);
+			}
+			catch(IOException e) {
+				dir.toFile().deleteOnExit();
+				throw e;
+			}
 			return super.postVisitDirectory(dir, exc);
 		}
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
 			log.debug("Will delete file " + path);
-			Files.delete(path);
+			try {
+				Files.delete(path);
+			}
+			catch(IOException e) {
+				path.toFile().deleteOnExit();
+				throw e;
+			}
 			return FileVisitResult.CONTINUE;
 		}
 	}
 
 	public static void extractFileFromClasspath(String sourceFile, Path destFile) throws MojoExecutionException {
+		extractFileFromClasspath(sourceFile, destFile, false);
+	}
+	
+	public static void extractFileFromClasspath(String sourceFile, Path destFile, boolean deleteOnExit) throws MojoExecutionException {
 		if(Files.exists(destFile)) {
 			throw new MojoExecutionException("Won't overwrite file " + destFile);
 		}
 		
 		try {
-			Files.createDirectories(destFile.getParent());
+			Path parentDir = destFile.getParent();
+			if(Files.notExists(parentDir)) {
+				Files.createDirectories(parentDir);
+				if(deleteOnExit) {
+					parentDir.toFile().deleteOnExit();
+				}
+			}
 			
 			InputStream in = FileUtil.class.getClassLoader().getResourceAsStream(sourceFile);
 			Files.copy(in, destFile);
+			if(deleteOnExit) {
+				destFile.toFile().deleteOnExit();
+			}
 		}
 		catch (IOException e) {
 			throw new MojoExecutionException("Can't extract " + sourceFile + " to " + destFile, e);

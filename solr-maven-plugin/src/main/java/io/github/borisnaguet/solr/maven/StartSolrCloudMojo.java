@@ -70,43 +70,50 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		
 		// 1- Create the temp dir (for data)
 		boolean isDefault = baseDir == null;
-		Path dirPath = Paths.get(isDefault ? defaultBaseDir : baseDir);
+		Path dataDir = Paths.get(isDefault ? defaultBaseDir : baseDir);
 		try {
-			Files.createDirectories(dirPath);
+			Files.createDirectories(dataDir);
 		}
 		catch (IOException e) {
-			throw new MojoExecutionException("Error while creating parent dirs from " + dirPath, e);
+			throw new MojoExecutionException("Error while creating parent dirs from " + dataDir, e);
 		}
 		//If no baseDir is defined, we use the default, but we create a new temp dir for every start
 		if(isDefault) {
 			try {
-				dirPath = Files.createTempDirectory(dirPath, "temp");
+				dataDir = Files.createTempDirectory(dataDir, "data-");
 			}
 			catch (IOException e) {
-				throw new MojoExecutionException("Error while creating temp dir in " + dirPath, e);
+				throw new MojoExecutionException("Error while creating temp dir in " + dataDir, e);
 			}
 		}
 		
 		// 2- Init & start Solr cloud (with ZK)
-		SolrCloudManager cloudManager = new SolrCloudManager(dirPath, numServers, zkPort, configName);
-		cloudManager.startCluster(getLog());
+		Path confDir = Paths.get(confToUploadDir);
+		SolrCloudManager cloudManager = new SolrCloudManager(dataDir, confDir, numServers, zkPort, configName);
+		
+		if(Files.notExists(dataDir) || FileUtil.isEmptyDir(dataDir)) {
+			cloudManager.canDeleteDataDir();
+		}
 
+		cloudManager.startCluster(getLog());
+		
 		// 3- Upload some config files in ZK
 		if(uploadConfig) {
-			Path confDirPath = Paths.get(confToUploadDir);
 			//if the dir is already there, we don't copy anything in it
-			if(Files.notExists(confDirPath) || FileUtil.isEmptyDir(confDirPath)) {
-				FileUtil.extractFileFromClasspath("conf/_rest_managed.json", confDirPath.resolve("_rest_managed.json"));
-				FileUtil.extractFileFromClasspath("conf/currency.xml", confDirPath.resolve("currency.xml"));
-				FileUtil.extractFileFromClasspath("conf/managed-schema", confDirPath.resolve("managed-schema"));
-				FileUtil.extractFileFromClasspath("conf/protwords.txt", confDirPath.resolve("protwords.txt"));
-				FileUtil.extractFileFromClasspath("conf/solrconfig.xml", confDirPath.resolve("solrconfig.xml"));
-				FileUtil.extractFileFromClasspath("conf/stopwords.txt", confDirPath.resolve("stopwords.txt"));
-				FileUtil.extractFileFromClasspath("conf/synonyms.txt", confDirPath.resolve("synonyms.txt"));
-				FileUtil.extractFileFromClasspath("conf/lang/stopwords_en.txt", confDirPath.resolve("lang/stopwords_en.txt"));
+			if(Files.notExists(confDir) || FileUtil.isEmptyDir(confDir)) {
+				cloudManager.canDeleteConfDir();
+				
+				FileUtil.extractFileFromClasspath("conf/_rest_managed.json", confDir.resolve("_rest_managed.json"));
+				FileUtil.extractFileFromClasspath("conf/currency.xml", confDir.resolve("currency.xml"));
+				FileUtil.extractFileFromClasspath("conf/managed-schema", confDir.resolve("managed-schema"));
+				FileUtil.extractFileFromClasspath("conf/protwords.txt", confDir.resolve("protwords.txt"));
+				FileUtil.extractFileFromClasspath("conf/solrconfig.xml", confDir.resolve("solrconfig.xml"));
+				FileUtil.extractFileFromClasspath("conf/stopwords.txt", confDir.resolve("stopwords.txt"));
+				FileUtil.extractFileFromClasspath("conf/synonyms.txt", confDir.resolve("synonyms.txt"));
+				FileUtil.extractFileFromClasspath("conf/lang/stopwords_en.txt", confDir.resolve("lang/stopwords_en.txt"));
 			}
 			
-			cloudManager.uploadConfig(getLog(), confDirPath);
+			cloudManager.uploadConfig(getLog());
 		}
 
 		// 4- Create a collection 
