@@ -58,6 +58,10 @@
 						<goals>
 							<goal>stop-solrcloud</goal>
 						</goals>
+						<configuration>
+							<deleteConf>true</deleteConf>
+							<deleteData>true</deleteData>
+						</configuration>
 					</execution>
 					
 					<!-- INTEGRATION tests: use of all default config -->
@@ -69,11 +73,16 @@
 						<configuration>
 							<zkPort>8887</zkPort>
 							
-							<uploadConfig>true</uploadConfig>
-							<confToUploadDir>solr-alt-conf</confToUploadDir>
+							<uploadConfig>false</uploadConfig>
+							<confToUploadDir>solr-it-conf</confToUploadDir>
 							
 							<createCols>false</createCols>
-							<baseDir>target/solr-it-data</baseDir>
+							<!-- collections that were previously created in baseDir -->
+							<collectionsToCreate>
+								<collectionsToCreate>col1</collectionsToCreate>
+								<collectionsToCreate>testCol</collectionsToCreate>
+							</collectionsToCreate>
+							<baseDir>solr-it-data</baseDir>
 						</configuration>
 					</execution>
 					<execution>
