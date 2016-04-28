@@ -11,7 +11,8 @@ env:
   - secure: H1nQGAg+CHr9sw/l93jo3wYIJ9F7YW5G57qHP3M9rzasl36ZgbQLG918rqWudkklNLarOI904Oorw27EEGGsFTbf0OgVkAIf0eAwqGzdRrSWgziYbilN/MMS+dL5qSv0Nx9Mf/pr7BEjltR43s2ZjHp+FCJlgSJ0rfHRKYtD1JeHUCsgCNyitbzrNBp+LtvYLf7y4MGOi7AJZ7s2UeKt2+2OCxIyc1Aeu4eVjTJGH3MAzz+CrnO6brvtEKguKvu6JdG6QTowzwqDoIL+8RTJjybp2roeY7jmxcdYk2TenUlldfyFRvuidEzEpXgANyWjltV159zLMMaPTxAwnuf1fPXd6bcOo4RPoHz8Vx0qUZUQtWCMvDGuoCQ7thg4J6fJMgoKDwUxvdjLHHvBP685Rzpn1UG6qER5DzV6KDI1/+L3IMby6hqyNMMrXCgijmAybwEcdpo8fcBzgxx3Q83Zehj8DnwvXYV9PA9xsObbpBfMfyGT9Ihqc5Kn/71uDLefcTuZln6J6PBoJP80GF159rAEkLWW+IMjctZg8cyWVpTtfXyhUeB46B0YoqGoKHA6h+fawx3Q5VI2mRp/NgSTS0aU4i8CvD88PWp5iMjMr/lz1C76qGgR+xoNLkIRVQeXFFTn6T6YkDM9ybRRUcREfls2y7XNKR4FLefAN/i03M4=
 before_script:
 - mkdir gpg
-- openssl aes-256-cbc -K $encrypted_587f4e8c75e0_key -iv $encrypted_587f4e8c75e0_iv -in keys/pubring.gpg.enc -out gpg/pubring.gpg -d
-- openssl aes-256-cbc -K $encrypted_587f4e8c75e0_key -iv $encrypted_587f4e8c75e0_iv -in keys/secring.gpg.enc -out gpg/secring.gpg -d
 after_script:
 - rm -rf gpg
+before_install:
+- openssl aes-256-cbc -K $encrypted_587f4e8c75e0_key -iv $encrypted_587f4e8c75e0_iv -in keys/keys.tar.enc -out keys/keys.tar -d
+- tar -xvf keys/keys.tar -C gpg/
