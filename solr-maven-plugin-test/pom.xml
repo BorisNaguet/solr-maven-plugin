@@ -54,6 +54,9 @@
 						<goals>
 							<goal>start-solrcloud</goal>
 						</goals>
+						<configuration>
+							<skip>${skipTests}</skip>
+						</configuration>
 					</execution>
 					<execution>
 						<id>stop-tests</id>

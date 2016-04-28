@@ -10,7 +10,7 @@
 
 	<profiles>
 		<profile>
-			<id>solr-maven-plugin</id>
+			<id>gpg</id>
 			<properties>
 				<gpg.homedir>gpg/</gpg.homedir>
 				<gpg.keyname>${env.GPG_KEY}</gpg.keyname>
