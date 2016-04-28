@@ -7,4 +7,15 @@
 			<password>${env.CI_DEPLOY_PASSWORD}</password>
 		</server>
 	</servers>
+
+	<profiles>
+		<profile>
+			<id>solr-maven-plugin</id>
+			<properties>
+				<gpg.homedir>gpg/</gpg.homedir>
+				<gpg.keyname>${env.GPG_KEY}</gpg.keyname>
+				<gpg.passphrase>${env.GPG_PASS}</gpg.passphrase>
+			</properties>
+		</profile>
+	</profiles>
 </settings>

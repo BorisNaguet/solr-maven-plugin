@@ -124,7 +124,9 @@
 								<phase>verify</phase>
 								<goals>
 									<goal>sign</goal>
-								</goals><configuration></configuration>
+								</goals>
+								<configuration>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
