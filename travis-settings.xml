@@ -12,7 +12,7 @@
 		<profile>
 			<id>gpg</id>
 			<properties>
-				<gpg.homedir>gpg/</gpg.homedir>
+				<gpg.homedir>../gpg/</gpg.homedir>
 				<gpg.keyname>${env.GPG_KEY}</gpg.keyname>
 				<gpg.passphrase>${env.GPG_PASS}</gpg.passphrase>
 			</properties>
