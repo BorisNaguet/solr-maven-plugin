@@ -30,6 +30,11 @@ public class StopSolrCloudMojo extends AbstractSolrMojo {
 		
 		SolrCloudManager solrCloudManager = (SolrCloudManager) session.getPluginContext(plugin, project).get(CLOUD_MANAGER_CXT);
 		
+		if(solrCloudManager == null) {
+			getLog().info("Solr was not started (or there's a problem with plugin config), can't stop it");
+			return;
+		}
+		
 		solrCloudManager.stopCluster(getLog());
 		
 		if(deleteConf) {

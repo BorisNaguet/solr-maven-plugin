@@ -65,6 +65,7 @@
 							<goal>stop-solrcloud</goal>
 						</goals>
 						<configuration>
+							<skip>${skipTests}</skip>
 							<deleteConf>true</deleteConf>
 							<deleteData>true</deleteData>
 						</configuration>
