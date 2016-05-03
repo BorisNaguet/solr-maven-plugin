@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20160503" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Solr Maven Plugin &#x2013; Plugin Documentation</title>
+    <title>Solr Maven Plugin &#x2013; Surefire Report</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.5.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -62,10 +62,12 @@
         Introduction</a>
             </li>
                 
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Goals</a>
-          </li>
+                          <a href="plugin-info.html" title="Goals">
+          <span class="none"></span>
+        Goals</a>
+            </li>
                 
       <li>
   
@@ -97,12 +99,10 @@
         JavaDocs</a>
             </li>
                     
-      <li>
+      <li class="active">
   
-                          <a href="failsafe-report.html" title="Failsafe Report">
-          <span class="none"></span>
-        Failsafe Report</a>
-            </li>
+            <a href="#"><span class="none"></span>Failsafe Report</a>
+          </li>
                     
       <li>
   
@@ -111,10 +111,12 @@
         Surefire Report</a>
             </li>
                     
-      <li class="active">
+      <li>
   
-            <a href="#"><span class="none"></span>Plugin Documentation</a>
-          </li>
+                          <a href="plugin-info.html" title="Plugin Documentation">
+          <span class="none"></span>
+        Plugin Documentation</a>
+            </li>
               </ul>
         </li>
             </ul>
@@ -137,66 +139,120 @@
                 
         <div id="bodyColumn"  class="span10" >
                                   
-            <div class="section">
-<h2><a name="Plugin_Documentation"></a>Plugin Documentation</h2><a name="Plugin_Documentation"></a>
-<p>Goals available for this plugin:</p>
-<table border="0" class="table table-striped">
-<tr class="a">
-<th>Goal</th>
-<th>Description</th></tr>
-<tr class="b">
-<td><a href="start-solrcloud-mojo.html">solr:start-solrcloud</a></td>
-<td>Starts a new SolrCloud instance Can only be called once</td></tr>
-<tr class="a">
-<td><a href="stop-solrcloud-mojo.html">solr:stop-solrcloud</a></td>
-<td>No description.</td></tr></table>
+            <script type="text/javascript">
+//<![CDATA[
+function toggleDisplay(elementId) {
+ var elm = document.getElementById(elementId + 'error');
+ if (elm && typeof elm.style != "undefined") {
+ if (elm.style.display == "none") {
+ elm.style.display = "";
+ document.getElementById(elementId + 'off').style.display = "none";
+ document.getElementById(elementId + 'on').style.display = "inline";
+ } else if (elm.style.display == "") { elm.style.display = "none";
+ document.getElementById(elementId + 'off').style.display = "inline";
+ document.getElementById(elementId + 'on').style.display = "none";
+ } 
+ } 
+ }
+//]]>
+</script>
 <div class="section">
-<h3><a name="System_Requirements"></a>System Requirements</h3><a name="System_Requirements"></a>
-<p>The following specifies the minimum requirements to run this Maven plugin:</p>
-<table border="0" class="table table-striped">
-<tr class="a">
-<td>Maven</td>
-<td>2.0</td></tr>
-<tr class="b">
-<td>JDK</td>
-<td>1.7</td></tr>
-<tr class="a">
-<td>Memory</td>
-<td>No minimum requirement.</td></tr>
-<tr class="b">
-<td>Disk Space</td>
-<td>No minimum requirement.</td></tr></table></div>
+<h2><a name="Surefire_Report"></a>Surefire Report</h2></div>
 <div class="section">
-<h3><a name="Usage"></a>Usage</h3><a name="Usage"></a>
-<p>You should specify the version in your project's plugin configuration:</p>
-<div class="source"><pre class="prettyprint">&lt;project&gt;
-  ...
-  &lt;build&gt;
-    &lt;!-- To define the plugin version in your parent POM --&gt;
-    &lt;pluginManagement&gt;
-      &lt;plugins&gt;
-        &lt;plugin&gt;
-          &lt;groupId&gt;io.github.borisnaguet&lt;/groupId&gt;
-          &lt;artifactId&gt;solr-maven-plugin&lt;/artifactId&gt;
-          &lt;version&gt;0.2.0-SNAPSHOT&lt;/version&gt;
-        &lt;/plugin&gt;
-        ...
-      &lt;/plugins&gt;
-    &lt;/pluginManagement&gt;
-    &lt;!-- To use the plugin goals in your POM or parent POM --&gt;
-    &lt;plugins&gt;
-      &lt;plugin&gt;
-        &lt;groupId&gt;io.github.borisnaguet&lt;/groupId&gt;
-        &lt;artifactId&gt;solr-maven-plugin&lt;/artifactId&gt;
-        &lt;version&gt;0.2.0-SNAPSHOT&lt;/version&gt;
-      &lt;/plugin&gt;
-      ...
-    &lt;/plugins&gt;
-  &lt;/build&gt;
-  ...
-&lt;/project&gt;
-</pre></div>
-<p>For more information, see <a class="externalLink" href="http://maven.apache.org/guides/mini/guide-configuring-plugins.html">&quot;Guide to Configuring Plug-ins&quot;</a></p></div></div>
+<h2><a name="Summary"></a>Summary</h2><a name="Summary"></a>
+<p>[<a href="#Summary">Summary</a>] [<a href="#Package_List">Package List</a>] [<a href="#Test_Cases">Test Cases</a>]</p><br />
+<table border="1" class="table table-striped">
+<tr class="a">
+<th>Tests</th>
+<th>Errors </th>
+<th>Failures</th>
+<th>Skipped</th>
+<th>Success Rate</th>
+<th>Time</th></tr>
+<tr class="b">
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>2.824</td></tr></table><br />
+<p>Note: failures are anticipated and checked for with assertions while errors are unanticipated.</p><br /></div>
+<div class="section">
+<h2><a name="Package_List"></a>Package List</h2><a name="Package_List"></a>
+<p>[<a href="#Summary">Summary</a>] [<a href="#Package_List">Package List</a>] [<a href="#Test_Cases">Test Cases</a>]</p><br />
+<table border="1" class="table table-striped">
+<tr class="a">
+<th>Package</th>
+<th>Tests</th>
+<th>Errors </th>
+<th>Failures</th>
+<th>Skipped</th>
+<th>Success Rate</th>
+<th>Time</th></tr>
+<tr class="b">
+<td><a href="#com.solr.tests">com.solr.tests</a></td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>2.824</td></tr></table><br />
+<p>Note: package statistics are not computed recursively, they only sum up all of its testsuites numbers.</p>
+<div class="section">
+<h3><a name="com.solr.tests"></a>com.solr.tests</h3><a name="com.solr.tests"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<th></th>
+<th>Class</th>
+<th>Tests</th>
+<th>Errors </th>
+<th>Failures</th>
+<th>Skipped</th>
+<th>Success Rate</th>
+<th>Time</th></tr>
+<tr class="b">
+<td><a href="#com.solr.testsTestRequester"><img src="images/icon_success_sml.gif" alt="" /></a></td>
+<td><a href="#com.solr.testsTestRequester">TestRequester</a></td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>1.498</td></tr>
+<tr class="a">
+<td><a href="#com.solr.testsITRequester"><img src="images/icon_success_sml.gif" alt="" /></a></td>
+<td><a href="#com.solr.testsITRequester">ITRequester</a></td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>1.326</td></tr></table></div><br /></div>
+<div class="section">
+<h2><a name="Test_Cases"></a>Test Cases</h2><a name="Test_Cases"></a>
+<p>[<a href="#Summary">Summary</a>] [<a href="#Package_List">Package List</a>] [<a href="#Test_Cases">Test Cases</a>]</p>
+<div class="section">
+<h3><a name="TestRequester"></a>TestRequester</h3><a name="com.solr.testsTestRequester"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<td><img src="images/icon_success_sml.gif" alt="" /></td>
+<td><a name="TC_com.solr.tests.TestRequester.testAdd"></a>testAdd</td>
+<td>1.061</td></tr>
+<tr class="b">
+<td><img src="images/icon_success_sml.gif" alt="" /></td>
+<td><a name="TC_com.solr.tests.TestRequester.testPing"></a>testPing</td>
+<td>0.047</td></tr></table></div>
+<div class="section">
+<h3><a name="ITRequester"></a>ITRequester</h3><a name="com.solr.testsITRequester"></a>
+<table border="1" class="table table-striped">
+<tr class="a">
+<td><img src="images/icon_success_sml.gif" alt="" /></td>
+<td><a name="TC_com.solr.tests.ITRequester.testAdd"></a>testAdd</td>
+<td>0.967</td></tr>
+<tr class="b">
+<td><img src="images/icon_success_sml.gif" alt="" /></td>
+<td><a name="TC_com.solr.tests.ITRequester.testPing"></a>testPing</td>
+<td>0.031</td></tr></table></div><br /></div>
                   </div>
             </div>
           </div>
