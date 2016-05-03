@@ -18,7 +18,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		
-		<skip.integration.tests>true</skip.integration.tests>
+		<skipITs>true</skipITs>
 		
 		<!-- DO NOT deploy this test module on Nexus -->
 		<maven.deploy.skip>true</maven.deploy.skip>
@@ -78,7 +78,7 @@
 							<goal>start-solrcloud</goal>
 						</goals>
 						<configuration>
-							<skip>${skip.integration.tests}</skip>
+							<skip>${skipITs}</skip>
 							<zkPort>8887</zkPort>
 							
 							<uploadConfig>false</uploadConfig>
@@ -99,7 +99,7 @@
 							<goal>stop-solrcloud</goal>
 						</goals>
 						<configuration>
-							<skip>${skip.integration.tests}</skip>
+							<skip>${skipITs}</skip>
 						</configuration>
 					</execution>
 				</executions>
@@ -116,9 +116,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.19.1</version>
-				<configuration>
-					<skipTests>${skip.integration.tests}</skipTests>
-				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		
