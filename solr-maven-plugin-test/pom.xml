@@ -93,6 +93,7 @@
 							</collectionsToCreate>
 							<baseDir>solr-it-data</baseDir>
 							<chroot>/solr</chroot>
+							<numServers>2</numServers>
 						</configuration>
 					</execution>
 					<execution>
