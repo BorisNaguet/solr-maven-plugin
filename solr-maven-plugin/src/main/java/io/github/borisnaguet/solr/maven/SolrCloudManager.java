@@ -64,22 +64,25 @@ public class SolrCloudManager {
 
 	private ZkTestServer zkTestServer;
 
-	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String configName) {
-		this(dataDir, confDir, numServers, zkPort, DEFAULT_CLOUD_SOLR_XML, configName);
+	private String chroot;
+
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String configName, String chroot) {
+		this(dataDir, confDir, numServers, zkPort, DEFAULT_CLOUD_SOLR_XML, configName, chroot);
 	}
 
-	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, File solrXmlFile, String configName)
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, File solrXmlFile, String configName, String chroot)
 			throws MojoExecutionException {
-		this(dataDir, confDir, numServers, zkPort, read(solrXmlFile), configName);
+		this(dataDir, confDir, numServers, zkPort, read(solrXmlFile), configName, chroot);
 	}
 
-	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String solrXmlContent, String configName) {
+	public SolrCloudManager(Path dataDir, Path confDir, int numServers, int zkPort, String solrXmlContent, String configName, String chroot) {
 		this.dataDir = dataDir;
 		this.confDir = confDir;
 		this.numServers = numServers;
 		this.zkPort = zkPort;
 		this.solrXmlContent = solrXmlContent;
 		this.configName = configName;
+		this.chroot = chroot;
 	}
 
 	public void canDeleteDataDir() {
@@ -124,7 +127,7 @@ public class SolrCloudManager {
 					.stopAtShutdown(false)
 					.build();
 			
-			solrCloud = new MiniSolrCloudCluster(numServers, dataDir, solrXmlContent, jettyConfig, zkTestServer);
+			solrCloud = new MiniSolrCloudCluster(numServers, dataDir, solrXmlContent, jettyConfig, zkTestServer, chroot);
 			log.debug("MiniSolrCloudCluster started");
 		}
 		catch (Exception e) {
@@ -139,7 +142,7 @@ public class SolrCloudManager {
 	 * @throws MojoExecutionException
 	 */
 	public synchronized void uploadConfig(Log log) throws MojoExecutionException {
-		try (SolrZkClient zkClient = new SolrZkClient(solrCloud.getZkServer().getZkAddress(), TIMEOUT, TIMEOUT, null)) {
+		try (SolrZkClient zkClient = new SolrZkClient(solrCloud.getZkServer().getZkAddress(chroot), TIMEOUT, TIMEOUT, null)) {
 			ZkConfigManager manager = new ZkConfigManager(zkClient);
 			if(manager.configExists(configName)) {
 				throw new MojoExecutionException("Config " + configName + " already exists on ZK");

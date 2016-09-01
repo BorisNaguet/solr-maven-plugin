@@ -14,7 +14,7 @@ public class ITRequester extends RandomizedTest {
 
 	@BeforeClass
 	public static void initTest() {
-		requester = new Requester("testCol", 8887);
+		requester = new Requester("testCol", 9984, "/solr");
 	}
 	
 	@Test

@@ -124,8 +124,8 @@ public class MiniSolrCloudCluster {
    */
   public MiniSolrCloudCluster(int numServers, String hostContext, Path baseDir, String solrXml,
       SortedMap<ServletHolder, String> extraServlets,
-      SortedMap<Class<? extends Filter>, String> extraRequestFilters) throws Exception {
-    this(numServers, hostContext, baseDir, solrXml, extraServlets, extraRequestFilters, null);
+      SortedMap<Class<? extends Filter>, String> extraRequestFilters, String chroot) throws Exception {
+    this(numServers, hostContext, baseDir, solrXml, extraServlets, extraRequestFilters, null, chroot);
   }
 
   /**
@@ -144,13 +144,14 @@ public class MiniSolrCloudCluster {
   public MiniSolrCloudCluster(int numServers, String hostContext, Path baseDir, String solrXml,
       SortedMap<ServletHolder, String> extraServlets,
       SortedMap<Class<? extends Filter>, String> extraRequestFilters,
-      SSLConfig sslConfig) throws Exception {
+      SSLConfig sslConfig, String chroot) throws Exception {
     this(numServers, baseDir, solrXml, JettyConfig.builder()
         .setContext(hostContext)
         .withSSLConfig(sslConfig)
         .withFilters(extraRequestFilters)
         .withServlets(extraServlets)
-        .build());
+        .build(),
+        chroot);
   }
 
   /**
@@ -163,8 +164,8 @@ public class MiniSolrCloudCluster {
    *
    * @throws Exception if there was an error starting the cluster
    */
-  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, JettyConfig jettyConfig) throws Exception {
-    this(numServers, baseDir, solrXml, jettyConfig, null);
+  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, JettyConfig jettyConfig, String chroot) throws Exception {
+    this(numServers, baseDir, solrXml, jettyConfig, null, chroot);
   }
 
   /**
@@ -178,10 +179,12 @@ public class MiniSolrCloudCluster {
    *
    * @throws Exception if there was an error starting the cluster
    */
-  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, final JettyConfig jettyConfig, ZkTestServer zkTestServer) throws Exception {
+  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, final JettyConfig jettyConfig, ZkTestServer zkTestServer, String chroot) throws Exception {
 
     this.baseDir = baseDir;
     this.jettyConfig = jettyConfig;
+    //remove possible final '/'
+    String chrootCut = (chroot.endsWith("/") ? chroot.substring(0, chroot.length() - 1) : chroot);
 
     Files.createDirectories(baseDir);
 
@@ -196,15 +199,15 @@ public class MiniSolrCloudCluster {
     try(SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(),
         AbstractZkTestCase.TIMEOUT, AbstractZkTestCase.TIMEOUT, null)) {
     	if(solrXml != null) {
-			zkClient.makePath("/solr/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
+			zkClient.makePath(chrootCut + "/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
 		}
       if (jettyConfig.sslConfig != null && jettyConfig.sslConfig.isSSLMode()) {
-        zkClient.makePath("/solr" + ZkStateReader.CLUSTER_PROPS, "{'urlScheme':'https'}".getBytes(Charsets.UTF_8), true);
+        zkClient.makePath(chrootCut + ZkStateReader.CLUSTER_PROPS, "{'urlScheme':'https'}".getBytes(Charsets.UTF_8), true);
       }
     }
 
     // tell solr to look in zookeeper for solr.xml
-    System.setProperty("zkHost", zkServer.getZkAddress());
+    System.setProperty("zkHost", zkServer.getZkAddress(chroot));
 
     List<Callable<JettySolrRunner>> startups = new ArrayList<>(numServers);
     for (int i = 0; i < numServers; ++i) {
@@ -232,7 +235,7 @@ public class MiniSolrCloudCluster {
         AbstractZkTestCase.TIMEOUT, 45000, null)) {
       int numliveNodes = 0;
       int retries = 60;
-      String liveNodesPath = "/solr/live_nodes";
+      String liveNodesPath = chrootCut + "/live_nodes";
       // Wait up to 60 seconds for number of live_nodes to match up number of servers
       do {
         if (zkClient.exists(liveNodesPath, true)) {
@@ -251,7 +254,7 @@ public class MiniSolrCloudCluster {
       } while (numliveNodes != numServers);
     }
 
-    solrClient = buildSolrClient();
+    solrClient = buildSolrClient(chroot);
   }
 
   private String newNodeName() {
@@ -459,8 +462,8 @@ public class MiniSolrCloudCluster {
     return solrClient;
   }
   
-  protected CloudSolrClient buildSolrClient() {
-    return new CloudSolrClient(getZkServer().getZkAddress());
+  protected CloudSolrClient buildSolrClient(String chroot) {
+    return new CloudSolrClient(getZkServer().getZkAddress(chroot));
   }
 
   private static String getHostContextSuitableForServletContext(String ctx) {

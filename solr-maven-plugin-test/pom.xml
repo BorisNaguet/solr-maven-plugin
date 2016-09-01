@@ -18,6 +18,7 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		
+		<!-- configured to run manually from this project only (not parent project/build) -->
 		<skipITs>true</skipITs>
 		
 		<!-- DO NOT deploy this test module on Nexus -->
@@ -79,7 +80,7 @@
 						</goals>
 						<configuration>
 							<skip>${skipITs}</skip>
-							<zkPort>8887</zkPort>
+							<zkPort>9984</zkPort>
 							
 							<uploadConfig>false</uploadConfig>
 							<confToUploadDir>solr-it-conf</confToUploadDir>
@@ -91,6 +92,7 @@
 								<collectionsToCreate>testCol</collectionsToCreate>
 							</collectionsToCreate>
 							<baseDir>solr-it-data</baseDir>
+							<chroot>/solr</chroot>
 						</configuration>
 					</execution>
 					<execution>

@@ -10,11 +10,11 @@ public class Requester {
 	private CloudSolrClient cloudSolrClient;
 
 	public Requester() {
-		this("default", 8889);
+		this("default", 9983, "/");
 	}
 	
-	public Requester(String collection, int port) {
-		cloudSolrClient = new CloudSolrClient("localhost:" + port + "/solr");
+	public Requester(String collection, int port, String context) {
+		cloudSolrClient = new CloudSolrClient("localhost:" + port + context);
 		cloudSolrClient.setDefaultCollection(collection);
 	}
 

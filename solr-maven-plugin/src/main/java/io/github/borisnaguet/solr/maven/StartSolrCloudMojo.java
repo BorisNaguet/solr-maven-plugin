@@ -13,7 +13,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.solr.cloud.MiniSolrCloudCluster;
 
 import io.github.borisnaguet.solr.maven.util.FileUtil;
 
@@ -37,7 +36,7 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 	@Parameter(property = "solr.base.dir")
 	private String baseDir;
 	
-	@Parameter(property = "solr.zk.port", defaultValue = "8889")
+	@Parameter(property = "solr.zk.port", defaultValue = "9983")
 	private int zkPort;
 	
 	@Parameter(property = "solr.num.servers", defaultValue = "1")
@@ -48,7 +47,10 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 
 	@Parameter(property = "solr.config.name", defaultValue = "solrcloud-config")
 	private String configName;
-	
+
+	@Parameter(property = "solr.zk.chroot", defaultValue = "/")
+	private String chroot;
+
 	@Parameter(property = "solr.conf.dir", defaultValue = "${project.build.directory}/solrcloud/conf")
 	private String confToUploadDir;
 
@@ -93,7 +95,7 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		Path confDir = Paths.get(confToUploadDir);
 		//TODO: get solrXml from config (+ option to upload it?)
 		String solrXml = uploadConfig ? DEFAULT_CLOUD_SOLR_XML : null;
-		SolrCloudManager cloudManager = new SolrCloudManager(dataDir, confDir, numServers, zkPort, solrXml, configName);
+		SolrCloudManager cloudManager = new SolrCloudManager(dataDir, confDir, numServers, zkPort, solrXml, configName, chroot);
 		
 		if(Files.notExists(dataDir) || FileUtil.isEmptyDir(dataDir)) {
 			cloudManager.canDeleteDataDir();
