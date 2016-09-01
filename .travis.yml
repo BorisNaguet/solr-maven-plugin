@@ -1,7 +1,9 @@
+git:
+  depth: 5
 language: java
 jdk:
 - oraclejdk7
-script: mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg
+script: mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra
 env:
   global:
   - secure: XUFFgaXi0YFzOCz+bGEsdo8c3UZ/H1RxNOkvLcjWygK297fRtIdefXxSrw1Z1YYjmPQJ/tYyngqwQanIW+Wi0XI3oVFyyuNdOsws0M/q+xOrLGt3Y/gXscLOR5Oe8LkjGg6d6bcNfcP2Bick0HTsB4869XH6fKthefOfG0w2zW3VowiatXPkiD/mcDUkCyFeJhjxQuzQJ+hHkPhRU9OmzQ8KRWxL5g2ivOu44kDp/fNAdWqkIGy3JLlDOBg/qOjItgDFLrW/KI79TL9lexskNTYuTmAFQtcGAVBiW3H8/+nITNL79yBWFRf/zVJf2v0MYOzAK7kMuW4wVw0GwIBSdgUpAMdgSKZ5kayQKCT7e4spilpVq7il1BIfgSrq5qqiDlegBhHyfP13lr/UWINrSSQ6Hf46EJLvBpWk9ONo9Ho6DS/MdJWCw5nT7w3SIaKHeifguYqCNnRtzLSoFWTSc2LgyeYvwsXyhWfp3E0IpLleSqhJKC4yOT2JAcBUKpNDIehcLKlpuVfx4l+NN4bM/uhfd9z+PIUBzrLL4X9BA9CtLJmEvTMUyml5l6kUsxTtVBNIaOUE6YRnKEgivRCgmwukd/8coE/DgFmBJbn+24v013iF8JW6/d2zLWoT/djZ87pyaZxYIr8FVGz25LBqCCuL+byWbBCjl0RvSmh2mIk=
