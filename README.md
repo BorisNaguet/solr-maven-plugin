@@ -10,7 +10,7 @@ Releases available on maven Central
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </plugin>
 ```
 
@@ -33,7 +33,7 @@ Snapshots (pushed automatically from Travis, on each push) available on Sonatype
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
 </plugin>
 ```
 
