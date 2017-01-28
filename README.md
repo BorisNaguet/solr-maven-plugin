@@ -10,7 +10,7 @@ Releases available on maven Central
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </plugin>
 ```
 
