@@ -47,6 +47,23 @@
 				<groupId>io.github.borisnaguet</groupId>
 				<artifactId>solr-maven-plugin</artifactId>
 				<version>${project.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.solr</groupId>
+						<artifactId>solr-core</artifactId>
+						<version>6.3.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.solr</groupId>
+						<artifactId>solr-test-framework</artifactId>
+						<version>6.3.0</version>
+					</dependency>
+					<dependency>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+						<version>1.1.7</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<!-- Unit tests: tests individual configuration parameters -->
 					<execution>
