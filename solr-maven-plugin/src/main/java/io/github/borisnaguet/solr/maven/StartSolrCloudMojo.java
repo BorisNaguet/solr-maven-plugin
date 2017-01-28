@@ -13,6 +13,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.codehaus.mojo.cassandra.ConsoleScanner;
 
 import io.github.borisnaguet.solr.maven.util.FileUtil;
 
@@ -59,6 +60,9 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 	
 	@Parameter(property = "solr.create.collections", defaultValue = "true")
 	private boolean createCols;
+	
+	@Parameter(property = "solr.keep.running", defaultValue = "false")
+	private boolean keepRunning;
 	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -134,5 +138,18 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		
 		// 5- set in MavenSession, to be used later by other Mojos (like StopSolrCloud)
 		session.getPluginContext(plugin, project).put(CLOUD_MANAGER_CXT, cloudManager);
+		
+		if(keepRunning && settings.getInteractiveMode()) {
+			ConsoleScanner consoleScanner = new ConsoleScanner();
+			consoleScanner.start();
+			try {
+				Thread.sleep(200);
+				getLog().info("------------------------------------------------------------------");
+				getLog().info("Hit ENTER on the console to stop Cassandra and continue the build.\n");
+				consoleScanner.waitForFinished();
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		}
 	}
 }
