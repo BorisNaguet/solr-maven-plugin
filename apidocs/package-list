@@ -1,3 +1,4 @@
 io.github.borisnaguet.solr.maven
 io.github.borisnaguet.solr.maven.util
 org.apache.solr.cloud
+org.codehaus.mojo.cassandra
