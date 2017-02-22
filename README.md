@@ -171,6 +171,36 @@ After a while you'll see that:
 ```
 So it's better to clean stop with **Enter** instead of kill.
 
+### Solr version
+As is, the plugin starts Solr 5.5.1 (will be updated with time of course).
+If you need another version, you might try to directly change the "classpath" of the plugin:
+
+These are the only dependencies that you need to update:
+
+```xml
+				<plugin>
+					<groupId>io.github.borisnaguet</groupId>
+					<artifactId>solr-maven-plugin</artifactId>
+					<version>0.3.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.solr</groupId>
+							<artifactId>solr-core</artifactId>
+							<version>${solr.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.solr</groupId>
+							<artifactId>solr-test-framework</artifactId>
+							<version>${solr.version}</version>
+						</dependency>
+					</dependencies>
+...
+```
+
+Of course, it can only work until some breaking change is introduced somewhere. Please inform me if this doesn't work on a particular version.
+
+Also please note that Solr 6 requires Java 8 (while this plugin is kept in Java 7 to be able to run Solr 5 on older projects).
+
 ## To improve
 This plugin is already used in a large professional project, but it could still be improved.
 The main missing feature, is the ability to pick a Solr version: for the moment it's hard-coded in plugin.
