@@ -50,7 +50,7 @@ Please, see `solr-maven-plugin-test` sub-project for a full example:
 		<artifactId>solr-maven-plugin</artifactId>
 		<version>${project.version}</version>
 		<executions>
-			<!-- Unit tests: tests individual configuration parameters -->
+			<!-- Unit tests: tests default configuration parameters -->
 			<execution>
 				<id>start-tests</id>
 				<phase>process-test-resources</phase>
@@ -74,9 +74,10 @@ Please, see `solr-maven-plugin-test` sub-project for a full example:
 				</configuration>
 			</execution>
 			
-			<!-- INTEGRATION tests: use of all default config -->
+			<!-- INTEGRATION tests: use of all config -->
 			<execution>
 				<id>start-IT</id>
+				<!-- default phase is pre-integration-test -->
 				<goals>
 					<goal>start-solrcloud</goal>
 				</goals>
@@ -100,6 +101,7 @@ Please, see `solr-maven-plugin-test` sub-project for a full example:
 			</execution>
 			<execution>
 				<id>stop-IT</id>
+				<!-- default phase is post-integration-test -->
 				<goals>
 					<goal>stop-solrcloud</goal>
 				</goals>
@@ -144,6 +146,30 @@ Now, you can reference it in solrconfig.xml:
     </lst>
 </requestHandler>
 ```
+
+### Standalone start
+We've seen how to start & stop Solr with your maven build (using default phase or not).
+But what if you want to start solr using the same version & config and run tests from Eclipse/IntelliJ and/or execute queries manually against it after/before tests.
+Since version 0.3.0 you can start it with a command line:
+
+```
+mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud
+```
+
+If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups) (but maybe I should rename things to be even shorter).
+
+The previous command will only use the configuration at the plugin level - not inside executions. If you configured the plugin inside an **execution**, you can specify its **id** with maven:
+
+```
+mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud@start-IT
+```
+
+After a while you'll see that:
+```
+[INFO] ------------------------------------------------------------------
+[INFO] Hit ENTER on the console to stop Cassandra and continue the build.
+```
+So it's better to clean stop with **Enter** instead of kill.
 
 ## To improve
 This plugin is already used in a large professional project, but it could still be improved.
