@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/BorisNaguet/solr-maven-plugin.svg?branch=master)](https://travis-ci.org/BorisNaguet/solr-maven-plugin) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.borisnaguet/solr-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.borisnaguet/solr-maven-plugin)
 
-A maven plugin to start/stop Apache Solr Cloud 5
+A maven plugin to start/stop Apache Solr Cloud
 
 ## Install
 Releases available on maven Central
