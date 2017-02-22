@@ -33,7 +33,7 @@ Snapshots (pushed automatically from Travis, on each push) available on Sonatype
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
 </plugin>
 ```
 
