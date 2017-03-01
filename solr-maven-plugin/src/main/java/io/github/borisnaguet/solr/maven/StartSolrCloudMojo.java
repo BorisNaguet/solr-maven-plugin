@@ -20,8 +20,6 @@ import io.github.borisnaguet.solr.maven.util.FileUtil;
 /**
  * Starts a new SolrCloud instance
  * 
- * Can only be called once
- * 
  * @author BorisNaguet
  *
  */
@@ -63,6 +61,10 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 	
 	@Parameter(property = "solr.keep.running", defaultValue = "false")
 	private boolean keepRunning;
+	
+	protected boolean isKeepRunning() {
+		return keepRunning;
+	}
 	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -139,13 +141,13 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		// 5- set in MavenSession, to be used later by other Mojos (like StopSolrCloud)
 		session.getPluginContext(plugin, project).put(CLOUD_MANAGER_CXT, cloudManager);
 		
-		if(keepRunning && settings.getInteractiveMode()) {
+		if(isKeepRunning() && settings.getInteractiveMode()) {
 			ConsoleScanner consoleScanner = new ConsoleScanner();
 			consoleScanner.start();
 			try {
 				Thread.sleep(200);
 				getLog().info("------------------------------------------------------------------");
-				getLog().info("Hit ENTER on the console to stop Cassandra and continue the build.\n");
+				getLog().info("Hit ENTER on the console to stop Solr and continue the build.\n");
 				consoleScanner.waitForFinished();
 			} catch (InterruptedException e) {
 				// ignore
