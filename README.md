@@ -177,12 +177,12 @@ mvn solr:rund@start-IT
 After a while you'll see that:
 ```
 [INFO] ------------------------------------------------------------------
-[INFO] Hit ENTER on the console to stop Cassandra and continue the build.
+[INFO] Hit ENTER on the console to stop Solr and continue the build.
 ```
 So it's better to clean stop with **Enter** instead of kill.
 
 ### Solr version
-As is, the plugin starts Solr 5.5.1 (will be updated with time of course).
+As is, the plugin starts Solr 6.2.1 (will be updated with time of course).
 If you need another version, you might try to directly change the "classpath" of the plugin:
 
 These are the only dependencies that you need to update:
@@ -191,7 +191,7 @@ These are the only dependencies that you need to update:
 				<plugin>
 					<groupId>io.github.borisnaguet</groupId>
 					<artifactId>solr-maven-plugin</artifactId>
-					<version>0.3.0</version>
+					<version>${plugin.version}</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.solr</groupId>
