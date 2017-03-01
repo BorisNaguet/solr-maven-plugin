@@ -2,7 +2,7 @@ git:
   depth: 5
 language: java
 jdk:
-- oraclejdk7
+- oraclejdk8
 script: mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra
 env:
   global:
