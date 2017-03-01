@@ -156,12 +156,22 @@ Since version 0.3.0 you can start it with a command line:
 mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud
 ```
 
-If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups) (but maybe I should rename things to be even shorter).
+If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups) (but maybe I should rename things to be even shorter):
+
+```
+mvn -Dsolr.keep.running=true solr:start-solrcloud
+```
+
+In version 0.4.0, I'll add a shortcut:
+
+```
+mvn solr:run
+```
 
 The previous command will only use the configuration at the plugin level - not inside executions. If you configured the plugin inside an **execution**, you can specify its **id** with maven:
 
 ```
-mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud@start-IT
+mvn solr:rund@start-IT
 ```
 
 After a while you'll see that:
