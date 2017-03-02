@@ -96,8 +96,8 @@ public class SolrCloudManager {
 	/**
 	 * Start the {@link MiniSolrCloudCluster}
 	 * 
-	 * @param log
-	 * @throws MojoExecutionException
+	 * @param log maven log
+	 * @throws MojoExecutionException exception
 	 */
 	public synchronized void startCluster(Log log) throws MojoExecutionException {
 		if (solrCloud != null) {
@@ -138,8 +138,8 @@ public class SolrCloudManager {
 	/**
 	 * Upload config to ZK
 	 * 
-	 * @param log
-	 * @throws MojoExecutionException
+	 * @param log maven log
+	 * @throws MojoExecutionException exception
 	 */
 	public synchronized void uploadConfig(Log log) throws MojoExecutionException {
 		try (SolrZkClient zkClient = new SolrZkClient(solrCloud.getZkServer().getZkAddress(chroot), TIMEOUT, TIMEOUT, null)) {
@@ -158,10 +158,11 @@ public class SolrCloudManager {
 	}
 
 	/**
+	 * Creates a collection
 	 * 
-	 * 
-	 * @param log
-	 * @throws MojoExecutionException
+	 * @param log maven log
+	 * @param colName collection name to create
+	 * @throws MojoExecutionException Exception
 	 */
 	public synchronized void createCollection(Log log, String colName) throws MojoExecutionException {
 		log.debug("About to create collection " + colName);
@@ -178,8 +179,8 @@ public class SolrCloudManager {
 	/**
 	 * Stop the cluster and clean
 	 * 
-	 * @param log
-	 * @throws MojoExecutionException
+	 * @param log maven log
+	 * @throws MojoExecutionException exception
 	 */
 	public synchronized void stopCluster(Log log) throws MojoExecutionException {
 		log.debug("About to stopCluster");
@@ -223,9 +224,10 @@ public class SolrCloudManager {
 	}
 	
 	/**
-	 * Removes the {@link #baseDir}
+	 * Removes the dir
 	 * 
-	 * @param log
+	 * @param log maven log
+	 * @param dir dir to clean
 	 */
 	protected synchronized void clean(Log log, Path dir) {
 		log.debug("About to clean");

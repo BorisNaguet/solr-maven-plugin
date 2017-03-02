@@ -28,8 +28,8 @@ public class FileUtil {
 	/**
 	 * Fully read into memory a File
 	 * 
-	 * @param file
-	 * @return
+	 * @param file the file to read
+	 * @return the file content
 	 * @throws MojoExecutionException
 	 */
 	public static String read(File file) throws MojoExecutionException {
@@ -48,7 +48,7 @@ public class FileUtil {
 	 * If the directory is not empty, it'll delete all files and sub-dirs before
 	 * 
 	 * @param log Maven logger to use
-	 * @param path
+	 * @param path of the file
 	 */
 	public static void delete(Log log, Path path) {
 		if (log != null && path != null) {
