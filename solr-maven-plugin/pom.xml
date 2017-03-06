@@ -9,7 +9,7 @@
 	<packaging>maven-plugin</packaging>
 
 	<name>Solr Maven Plugin</name>
-	<description>A maven plugin to start and stop solr cloud 5</description>
+	<description>A maven plugin to start and stop solr cloud</description>
 	<url>https://github.com/BorisNaguet/solr-maven-plugin</url>
 
 	<licenses>
