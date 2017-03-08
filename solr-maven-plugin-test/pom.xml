@@ -19,7 +19,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		
 		<!-- configured to run manually from this project only (not parent project/build) -->
-		<skipITs>true</skipITs>
+		<skipITs>false</skipITs>
 		
 		<!-- DO NOT deploy this test module on Nexus -->
 		<maven.deploy.skip>true</maven.deploy.skip>
@@ -82,16 +82,16 @@
 							<skip>${skipITs}</skip>
 							<zkPort>9984</zkPort>
 							
-							<uploadConfig>false</uploadConfig>
+							<uploadConfig>true</uploadConfig>
 							<confToUploadDir>solr-it-conf</confToUploadDir>
 							
-							<createCols>false</createCols>
+							<createCols>true</createCols>
 							<!-- collections that were previously created in baseDir -->
 							<collectionsToCreate>
 								<collectionsToCreate>col1</collectionsToCreate>
 								<collectionsToCreate>testCol</collectionsToCreate>
 							</collectionsToCreate>
-							<baseDir>solr-it-data</baseDir>
+							<baseDir>target/solr-it-data</baseDir>
 							<chroot>/solr</chroot>
 							<numServers>2</numServers>
 						</configuration>
