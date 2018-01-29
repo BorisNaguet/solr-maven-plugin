@@ -3,7 +3,9 @@ git:
 language: java
 jdk:
 - oraclejdk8
-script: mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra
+script:
+  - mvn clean test
+  - mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests
 env:
   global:
   - secure: 1Homkb5Uv7AfiqFiRRYWusnN1FEBVuqSreotJcStaAWFeBnL717AWUFYDlwYGuueCXh2F6eaL0eNEuSKmV5FFRaxSy72XC6jQE7+fljlpu0x9CV8WJJinSWh9CsDxYdSJPkANPBTHswlYCX2Vr478WQPtoPoTHmwpv1Rbf6pg+V1D+EhxJLQbaJX2FxUhFAsUYLoLN9hvzrG5SfXiXCv2/OkSEfo4MjR04tc/Tu4rN6so9FNDrlPeIpYRdJZLT8D6/P/2eEpsTlQpk9haQHMj2FkH/ZYfqfvLZid6NNnmNYi4hM3/HQUA3VAOjenohdBFcRkB1+YT8iRKcYWmWLApInaFbWb3q/1Q/0rN7Rb3JpW2GEkWyhCjC1t2AoXhO3OInSvgtbViBPTnkuMrYaNjTw/+sLEH74127y89ljQO3F+gs2Y/VM5mguWsq4wo9aMTlvPUnPI8qn/7B7gHNvGkny02o9/i394yVywPUoCLjTXbjq7ECQQQpzadXno345cMDYYQe7+x13vbvE985f5kLe2b6zMoVz83s9Yz93WHuGJ0nRBKcoehlR6DMPAUisttSGhV2jzfbfeZEU7WU087esLdZfX8YmRXazhOsQoltt2sh6HX2njchA4/R//nnLhLcyzgBdlqwqiKkNqMjlungQ9OU6h7577RfVVllZtYOs=
