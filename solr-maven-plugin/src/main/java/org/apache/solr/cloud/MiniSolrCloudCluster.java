@@ -17,55 +17,59 @@
 package org.apache.solr.cloud;
 
 import javax.servlet.Filter;
-import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.base.Charsets;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
 import org.apache.solr.client.solrj.embedded.JettySolrRunner;
 import org.apache.solr.client.solrj.embedded.SSLConfig;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.impl.CloudSolrClient.Builder;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.common.cloud.Replica;
 import org.apache.solr.common.cloud.SolrZkClient;
 import org.apache.solr.common.cloud.ZkConfigManager;
 import org.apache.solr.common.cloud.ZkStateReader;
-import org.apache.solr.common.params.CollectionParams.CollectionAction;
-import org.apache.solr.common.params.CommonAdminParams;
-import org.apache.solr.common.params.CoreAdminParams;
-import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.ExecutorUtil;
-import org.apache.solr.common.util.NamedList;
+import org.apache.solr.common.util.IOUtils;
 import org.apache.solr.common.util.SolrjNamedThreadFactory;
+import org.apache.solr.core.CoreContainer;
 import org.apache.zookeeper.KeeperException;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * "Mini" SolrCloud cluster to be used for testing
  */
 public class MiniSolrCloudCluster {
+
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
   public static final String DEFAULT_CLOUD_SOLR_XML = "<solr>\n" +
       "\n" +
       "  <str name=\"shareSchema\">${shareSchema:false}</str>\n" +
       "  <str name=\"configSetBaseDir\">${configSetBaseDir:configsets}</str>\n" +
       "  <str name=\"coreRootDirectory\">${coreRootDirectory:.}</str>\n" +
+      "  <str name=\"collectionsHandler\">${collectionsHandler:solr.CollectionsHandler}</str>\n" +
       "\n" +
       "  <shardHandlerFactory name=\"shardHandlerFactory\" class=\"HttpShardHandlerFactory\">\n" +
       "    <str name=\"urlScheme\">${urlScheme:}</str>\n" +
@@ -82,19 +86,27 @@ public class MiniSolrCloudCluster {
       "    <int name=\"leaderVoteWait\">10000</int>\n" +
       "    <int name=\"distribUpdateConnTimeout\">${distribUpdateConnTimeout:45000}</int>\n" +
       "    <int name=\"distribUpdateSoTimeout\">${distribUpdateSoTimeout:340000}</int>\n" +
+      "    <str name=\"zkCredentialsProvider\">${zkCredentialsProvider:org.apache.solr.common.cloud.DefaultZkCredentialsProvider}</str> \n" +
+      "    <str name=\"zkACLProvider\">${zkACLProvider:org.apache.solr.common.cloud.DefaultZkACLProvider}</str> \n" +
       "  </solrcloud>\n" +
+      "  <metrics>\n" +
+      "    <reporter name=\"default\" class=\"org.apache.solr.metrics.reporters.SolrJmxReporter\">\n" +
+      "      <str name=\"rootName\">solr_${hostPort:8983}</str>\n" +
+      "    </reporter>\n" +
+      "  </metrics>\n" +
       "  \n" +
       "</solr>\n";
 
-  private final ZkTestServer zkServer;
+  private ZkTestServer zkServer; // non-final due to injectChaos()
   private final boolean externalZkServer;
   private final List<JettySolrRunner> jettys = new CopyOnWriteArrayList<>();
   private final Path baseDir;
   private final CloudSolrClient solrClient;
   private final JettyConfig jettyConfig;
 
-  private final ExecutorService executor = ExecutorUtil.newMDCAwareCachedThreadPool(new SolrjNamedThreadFactory("jetty-launcher"));
-
+  private final ExecutorService executorLauncher = ExecutorUtil.newMDCAwareCachedThreadPool(new SolrjNamedThreadFactory("jetty-launcher"));
+  private final ExecutorService executorCloser = ExecutorUtil.newMDCAwareCachedThreadPool(new SolrjNamedThreadFactory("jetty-closer"));
+  
   private final AtomicInteger nodeIds = new AtomicInteger();
 
   /**
@@ -150,8 +162,7 @@ public class MiniSolrCloudCluster {
         .withSSLConfig(sslConfig)
         .withFilters(extraRequestFilters)
         .withServlets(extraServlets)
-        .build(),
-        chroot);
+        .build(), chroot);
   }
 
   /**
@@ -179,12 +190,36 @@ public class MiniSolrCloudCluster {
    *
    * @throws Exception if there was an error starting the cluster
    */
-  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, final JettyConfig jettyConfig, ZkTestServer zkTestServer, String chroot) throws Exception {
+  public MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, JettyConfig jettyConfig,
+      ZkTestServer zkTestServer, String chroot) throws Exception {
+    this(numServers, baseDir, solrXml, jettyConfig, zkTestServer, Optional.empty(), chroot);
+  }
 
-    this.baseDir = baseDir;
-    this.jettyConfig = jettyConfig;
+  /**
+   * Create a MiniSolrCloudCluster.
+   * Note - this constructor visibility is changed to package protected so as to
+   * discourage its usage. Ideally *new* functionality should use {@linkplain SolrCloudTestCase}
+   * to configure any additional parameters.
+   *
+   * @param numServers number of Solr servers to start
+   * @param baseDir base directory that the mini cluster should be run from
+   * @param solrXml solr.xml file to be uploaded to ZooKeeper
+   * @param jettyConfig Jetty configuration
+   * @param zkTestServer ZkTestServer to use.  If null, one will be created
+   * @param securityJson A string representation of security.json file (optional).
+   *
+   * @throws Exception if there was an error starting the cluster
+   */
+   MiniSolrCloudCluster(int numServers, Path baseDir, String solrXml, JettyConfig jettyConfig,
+      ZkTestServer zkTestServer, Optional<String> securityJson, String chroot) throws Exception {
+
+    Objects.requireNonNull(securityJson);
+    this.baseDir = Objects.requireNonNull(baseDir);
+    this.jettyConfig = Objects.requireNonNull(jettyConfig);
     //remove possible final '/'
-    String chrootCut = (chroot.endsWith("/") ? chroot.substring(0, chroot.length() - 1) : chroot);
+//    String chrootCut = (chroot.endsWith("/") ? chroot.substring(0, chroot.length() - 1) : chroot);
+    
+    log.info("Starting cluster of {} servers in {}", numServers, baseDir);
 
     Files.createDirectories(baseDir);
 
@@ -196,13 +231,15 @@ public class MiniSolrCloudCluster {
     }
     this.zkServer = zkTestServer;
 
-    try(SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(),
-        AbstractZkTestCase.TIMEOUT, AbstractZkTestCase.TIMEOUT, null)) {
-    	if(solrXml != null) {
-			zkClient.makePath(chrootCut + "/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
-		}
+    try (SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(), AbstractZkTestCase.TIMEOUT)) {
+      if(solrXml != null) {
+        zkClient.makePath(chroot + "solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
+      }
       if (jettyConfig.sslConfig != null && jettyConfig.sslConfig.isSSLMode()) {
-        zkClient.makePath(chrootCut + ZkStateReader.CLUSTER_PROPS, "{'urlScheme':'https'}".getBytes(Charsets.UTF_8), true);
+        zkClient.makePath(chroot + "clusterprops.json", "{'urlScheme':'https'}".getBytes(StandardCharsets.UTF_8), true);
+      }
+      if (securityJson.isPresent()) { // configure Solr security
+        zkClient.makePath(chroot + "security.json", securityJson.get().getBytes(Charset.defaultCharset()), true);
       }
     }
 
@@ -211,15 +248,10 @@ public class MiniSolrCloudCluster {
 
     List<Callable<JettySolrRunner>> startups = new ArrayList<>(numServers);
     for (int i = 0; i < numServers; ++i) {
-      startups.add(new Callable<JettySolrRunner>() {
-        @Override
-        public JettySolrRunner call() throws Exception {
-          return startJettySolrRunner(newNodeName(), jettyConfig.context, jettyConfig);
-        }
-      });
+      startups.add(() -> startJettySolrRunner(newNodeName(), jettyConfig.context, jettyConfig));
     }
 
-    Collection<Future<JettySolrRunner>> futures = executor.invokeAll(startups);
+    Collection<Future<JettySolrRunner>> futures = executorLauncher.invokeAll(startups);
     Exception startupError = checkForExceptions("Error starting up MiniSolrCloudCluster", futures);
     if (startupError != null) {
       try {
@@ -231,12 +263,17 @@ public class MiniSolrCloudCluster {
       throw startupError;
     }
 
-    try (SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(),
-        AbstractZkTestCase.TIMEOUT, 45000, null)) {
+    waitForAllNodes(numServers, 60, chroot);
+
+    solrClient = buildSolrClient(chroot);
+  }
+
+  private void waitForAllNodes(int numServers, int timeout, String chroot) throws IOException, InterruptedException {
+    try (SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(), AbstractZkTestCase.TIMEOUT)) {
       int numliveNodes = 0;
-      int retries = 60;
-      String liveNodesPath = chrootCut + "/live_nodes";
-      // Wait up to 60 seconds for number of live_nodes to match up number of servers
+      int retries = timeout;
+      String liveNodesPath = chroot + "live_nodes";
+      // Wait up to {timeout} seconds for number of live_nodes to match up number of servers
       do {
         if (zkClient.exists(liveNodesPath, true)) {
           numliveNodes = zkClient.getChildren(liveNodesPath, null, true).size();
@@ -253,8 +290,13 @@ public class MiniSolrCloudCluster {
         Thread.sleep(1000);
       } while (numliveNodes != numServers);
     }
+    catch (KeeperException e) {
+      throw new IOException("Error communicating with zookeeper", e);
+    }
+  }
 
-    solrClient = buildSolrClient(chroot);
+  public void waitForAllNodes(int timeout, String chrootCut) throws IOException, InterruptedException {
+    waitForAllNodes(jettys.size(), timeout, chrootCut);
   }
 
   private String newNodeName() {
@@ -264,8 +306,8 @@ public class MiniSolrCloudCluster {
   private Path createInstancePath(String name) throws IOException {
     Path instancePath = baseDir.resolve(name);
     if(Files.notExists(instancePath)) {
-		Files.createDirectory(instancePath);
-	}
+      Files.createDirectory(instancePath);
+    }
     return instancePath;
   }
 
@@ -281,6 +323,14 @@ public class MiniSolrCloudCluster {
    */
   public List<JettySolrRunner> getJettySolrRunners() {
     return Collections.unmodifiableList(jettys);
+  }
+
+  /**
+   * @return a randomly-selected Jetty
+   */
+  public JettySolrRunner getRandomJetty(Random random) {
+    int index = random.nextInt(jettys.size());
+    return jettys.get(index);
   }
 
   /**
@@ -317,6 +367,10 @@ public class MiniSolrCloudCluster {
         .withFilters(extraRequestFilters)
         .withSSLConfig(sslConfig)
         .build());
+  }
+
+  public JettySolrRunner getJettySolrRunner(int index) {
+    return jettys.get(index);
   }
 
   /**
@@ -359,8 +413,14 @@ public class MiniSolrCloudCluster {
     return jetty;
   }
 
-  protected JettySolrRunner startJettySolrRunner(JettySolrRunner jetty) throws Exception {
-    jetty.start();
+  /**
+   * Add a previously stopped node back to the cluster
+   * @param jetty a {@link JettySolrRunner} previously returned by {@link #stopJettySolrRunner(int)}
+   * @return the started node
+   * @throws Exception on error
+   */
+  public JettySolrRunner startJettySolrRunner(JettySolrRunner jetty) throws Exception {
+    jetty.start(false);
     jettys.add(jetty);
     return jetty;
   }
@@ -369,57 +429,27 @@ public class MiniSolrCloudCluster {
     jetty.stop();
     return jetty;
   }
-  
-  public void uploadConfigDir(File configDir, String configName) throws IOException, KeeperException, InterruptedException {
+
+  /**
+   * Upload a config set
+   * @param configDir a path to the config set to upload
+   * @param configName the name to give the configset
+   */
+  public void uploadConfigSet(Path configDir, String configName) throws IOException, KeeperException, InterruptedException {
     try(SolrZkClient zkClient = new SolrZkClient(zkServer.getZkAddress(),
         AbstractZkTestCase.TIMEOUT, AbstractZkTestCase.TIMEOUT, null)) {
       ZkConfigManager manager = new ZkConfigManager(zkClient);
-      manager.uploadConfigDir(configDir.toPath(), configName);
+      manager.uploadConfigDir(configDir, configName);
     }
-  }
-  
-  public NamedList<Object> createCollection(String name, int numShards, int replicationFactor, 
-      String configName, Map<String, String> collectionProperties) throws SolrServerException, IOException {
-    return createCollection(name, numShards, replicationFactor, configName, null, null, collectionProperties);
   }
 
-  public NamedList<Object> createCollection(String name, int numShards, int replicationFactor, 
-      String configName, String createNodeSet, String asyncId, Map<String, String> collectionProperties) throws SolrServerException, IOException {
-    final ModifiableSolrParams params = new ModifiableSolrParams();
-    params.set(CoreAdminParams.ACTION, CollectionAction.CREATE.name());
-    params.set(CoreAdminParams.NAME, name);
-    params.set("numShards", numShards);
-    params.set("replicationFactor", replicationFactor);
-    params.set("collection.configName", configName);
-    if (null != createNodeSet) {
-      params.set(OverseerCollectionMessageHandler.CREATE_NODE_SET, createNodeSet);
-    }
-    if (null != asyncId) {
-      params.set(CommonAdminParams.ASYNC, asyncId);
-    }
-    if(collectionProperties != null) {
-      for(Map.Entry<String, String> property : collectionProperties.entrySet()){
-        params.set(CoreAdminParams.PROPERTY_PREFIX + property.getKey(), property.getValue());
+  public void deleteAllCollections() throws Exception {
+    try (ZkStateReader reader = new ZkStateReader(solrClient.getZkStateReader().getZkClient())) {
+      reader.createClusterStateWatchersAndUpdate();
+      for (String collection : reader.getClusterState().getCollectionStates().keySet()) {
+        CollectionAdminRequest.deleteCollection(collection).process(solrClient);
       }
     }
-    
-    return makeCollectionsRequest(params);
-  }
-
-  public NamedList<Object> deleteCollection(String name) throws SolrServerException, IOException {
-    final ModifiableSolrParams params = new ModifiableSolrParams();
-    params.set(CoreAdminParams.ACTION, CollectionAction.DELETE.name());
-    params.set(CoreAdminParams.NAME, name);
-
-    return makeCollectionsRequest(params);
-  }
-
-  private NamedList<Object> makeCollectionsRequest(final ModifiableSolrParams params) throws SolrServerException, IOException {
-    
-    final QueryRequest request = new QueryRequest(params);
-    request.setPath("/admin/collections");
-    
-    return solrClient.request(request);
   }
 
   /**
@@ -427,27 +457,23 @@ public class MiniSolrCloudCluster {
    */
   public void shutdown() throws Exception {
     try {
-      if (solrClient != null) {
-		solrClient.close();
-	}
+    
+      IOUtils.closeQuietly(solrClient);
+      // accept no new tasks
+      executorLauncher.shutdown();
       List<Callable<JettySolrRunner>> shutdowns = new ArrayList<>(jettys.size());
       for (final JettySolrRunner jetty : jettys) {
-        shutdowns.add(new Callable<JettySolrRunner>() {
-          @Override
-          public JettySolrRunner call() throws Exception {
-            return stopJettySolrRunner(jetty);
-          }
-        });
+        shutdowns.add(() -> stopJettySolrRunner(jetty));
       }
       jettys.clear();
-      Collection<Future<JettySolrRunner>> futures = executor.invokeAll(shutdowns);
+      Collection<Future<JettySolrRunner>> futures = executorCloser.invokeAll(shutdowns);
       Exception shutdownError = checkForExceptions("Error shutting down MiniSolrCloudCluster", futures);
       if (shutdownError != null) {
         throw shutdownError;
       }
     } finally {
-      executor.shutdown();
-      executor.awaitTermination(2, TimeUnit.SECONDS);
+      ExecutorUtil.shutdownAndAwaitTermination(executorLauncher);
+      ExecutorUtil.shutdownAndAwaitTermination(executorCloser);
       try {
         if (!externalZkServer) {
           zkServer.shutdown();
@@ -457,25 +483,29 @@ public class MiniSolrCloudCluster {
       }
     }
   }
-  
+
+  public Path getBaseDir() {
+    return baseDir;
+  }
+
   public CloudSolrClient getSolrClient() {
     return solrClient;
   }
+
+  public SolrZkClient getZkClient() {
+    return solrClient.getZkStateReader().getZkClient();
+  }
   
   protected CloudSolrClient buildSolrClient(String chroot) {
-    return new CloudSolrClient(getZkServer().getZkAddress(chroot));
+    return new Builder()
+        .withZkHost(getZkServer().getZkAddress(chroot))
+        .build();
   }
 
   private static String getHostContextSuitableForServletContext(String ctx) {
-    if (ctx == null || "".equals(ctx)) {
-		ctx = "/solr";
-	}
-    if (ctx.endsWith("/")) {
-		ctx = ctx.substring(0,ctx.length()-1);
-	}
-    if (!ctx.startsWith("/")) {
-		ctx = "/" + ctx;
-	}
+    if (ctx == null || "".equals(ctx)) ctx = "/solr";
+    if (ctx.endsWith("/")) ctx = ctx.substring(0,ctx.length()-1);
+    if (!ctx.startsWith("/")) ctx = "/" + ctx;
     return ctx;
   }
 
@@ -496,5 +526,55 @@ public class MiniSolrCloudCluster {
       }
     }
     return ok ? null : parsed;
+  }
+
+  /**
+   * Return the jetty that a particular replica resides on
+   */
+  public JettySolrRunner getReplicaJetty(Replica replica) {
+    for (JettySolrRunner jetty : jettys) {
+      if (replica.getCoreUrl().startsWith(jetty.getBaseUrl().toString()))
+        return jetty;
+    }
+    throw new IllegalArgumentException("Cannot find Jetty for a replica with core url " + replica.getCoreUrl());
+  }
+
+  /**
+   * Make the zookeeper session on a particular jetty expire
+   */
+  public void expireZkSession(JettySolrRunner jetty) {
+    CoreContainer cores = jetty.getCoreContainer();
+    if (cores != null) {
+      SolrZkClient zkClient = cores.getZkController().getZkClient();
+      zkClient.getSolrZooKeeper().closeCnxn();
+      long sessionId = zkClient.getSolrZooKeeper().getSessionId();
+      zkServer.expire(sessionId);
+      log.info("Expired zookeeper session {} from node {}", sessionId, jetty.getBaseUrl());
+    }
+  }
+
+  public void injectChaos(Random random) throws Exception {
+
+    // sometimes we restart one of the jetty nodes
+    if (random.nextBoolean()) {
+      JettySolrRunner jetty = jettys.get(random.nextInt(jettys.size()));
+      ChaosMonkey.stop(jetty);
+      log.info("============ Restarting jetty");
+      ChaosMonkey.start(jetty);
+    }
+
+    // sometimes we restart zookeeper
+    if (random.nextBoolean()) {
+      zkServer.shutdown();
+      log.info("============ Restarting zookeeper");
+      zkServer = new ZkTestServer(zkServer.getZkDir(), zkServer.getPort());
+      zkServer.run();
+    }
+
+    // sometimes we cause a connection loss - sometimes it will hit the overseer
+    if (random.nextBoolean()) {
+      JettySolrRunner jetty = jettys.get(random.nextInt(jettys.size()));
+      ChaosMonkey.causeConnectionLoss(jetty);
+    }
   }
 }

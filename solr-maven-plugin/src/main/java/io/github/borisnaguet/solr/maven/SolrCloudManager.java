@@ -16,6 +16,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.JettyConfig;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest;
+import org.apache.solr.client.solrj.request.CollectionAdminRequest.Create;
 import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.apache.solr.cloud.ZkTestServer;
 import org.apache.solr.cloud.ZkTestServer.LimitViolationAction;
@@ -168,7 +170,8 @@ public class SolrCloudManager {
 		log.debug("About to create collection " + colName);
 
 		try {
-			solrCloud.createCollection(colName, numShards, replicationFactor, configName, null);
+			Create createCollection = CollectionAdminRequest.createCollection(colName, configName, numShards, replicationFactor);
+			createCollection.process(solrCloud.getSolrClient());
 		}
 		catch (SolrServerException | IOException e) {
 			throw new MojoExecutionException("Can't create solr collection " + colName, e);
