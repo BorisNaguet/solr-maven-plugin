@@ -3,9 +3,7 @@ git:
 language: java
 jdk:
 - oraclejdk8
-script:
-  - mvn clean test
-  - mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
+script: mvn clean verify && mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
 
 before_cache:
   # remove all the artifacts that are installed in local repo because of mvn deploy
