@@ -10,7 +10,7 @@ Releases available on maven Central
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </plugin>
 ```
 
@@ -33,7 +33,7 @@ Snapshots (pushed automatically from Travis, on each push) available on Sonatype
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
 </plugin>
 ```
 
@@ -156,13 +156,13 @@ Since version 0.3.0 you can start it with a command line:
 mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud
 ```
 
-If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups) (but maybe I should rename things to be even shorter):
+If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups):
 
 ```
 mvn -Dsolr.keep.running=true solr:start-solrcloud
 ```
 
-In version 0.4.0, I'll add a shortcut:
+Or use the shortcut:
 
 ```
 mvn solr:run
@@ -171,7 +171,7 @@ mvn solr:run
 The previous command will only use the configuration at the plugin level - not inside executions. If you configured the plugin inside an **execution**, you can specify its **id** with maven:
 
 ```
-mvn solr:rund@start-IT
+mvn solr:run@start-IT
 ```
 
 After a while you'll see that:
