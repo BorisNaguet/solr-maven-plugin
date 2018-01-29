@@ -3,8 +3,8 @@ git:
 language: java
 jdk:
   - oraclejdk8
-
-script: mvn clean verify && mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
+install: mvn clean compile
+script: mvn verify && mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
 
 before_cache:
   # remove all the artifacts that are installed in local repo because of mvn deploy
@@ -22,9 +22,11 @@ env:
 
   - secure: mWmdCO2u4MSxhtKO6Cv/gQu/3qsa7+WxqPkZE3+KEbsCr9UN2zTEOqKwOB6V9nJF+fl98rfTDa4eMYUayfQum8aVwqHFcrL7ULUWt02yNIUHnXFLjTXP09DXDKcvSSkPbcAVMvJMuRNHh8ksUFwyFg/0o/kbdPuSqTXBlE2rCiIg5ZhzgMJQI2l/0h3Ui+GJE9LLmlZPoXmNP0Xyyn5TC63iHwmY5cjwWuZdINEf+npd4+t1s/IncZNnKFbb1hOM8zekxdL4n1ti/OmqJNBoXNnO+4ebM41hUTpc6lNPBsJjmWOS7FCJgI4FK1cs9mFIytVn+gJ5oAXndo/YhY0JwzSa6RqKyBTz33mlP8JzWeFPjvmxvHj0Sfhvh7WjcUXn2rWuTQU493IUbUbT64cNKO6Dfs4kjCf6GIgNCxJ/X8XjM3hUaQAiC6dUtqNmi8jMZdXbTHOL+hYgF7QgMbNp1bhZIioWk/tGesiyWZeMhv4YcdE8UPwPuZF3sKhnjiPqEFJkeYSFAN1EscpcKNYO52mU5tK3pXJD9XWXK5MDuk2WitAg/hCJ6BEX99xA3vhb6vPI3+T2l5ctax5d0N44DEcTAB1yRROMQ0sAuDb+bIJvYydMQHDmMpoFDHv1zo/07L06fxtktMMImSAuBCZ8eDQlp3XpocZebgNQTX8rDlk=
   - secure: AGPI2ZayI2B1jk3Ogy7NjMqkN/1UGZizgo1yTp4ugP0mG8eKtCsIcFdY655r28KHboiXVMPHwigqYKuHXjpOAJOBCgANSF1dKBYs37C3T+sAbskdL5Xt4e892o8RhPLr3gndgtPROid5uqu2Pnyd0OJYP7P7chW56lTIfEDIntYrHCTYi1QEZolHAUtzz25TbPLb+wXXhWHkWQ5oPJWuc81LBBYkm2ilI7Enaoe/b4qhDlsUKS3YNwXO0QJFCMOfjE+EZ0LShBwMutnOL3oP0uLo4C/7gq3EoX5VHFBrqwJuGCLT4rwKBVj8yzwen2AFhsYP9XDmxm2nr3yPfBNMQ1uI3IYfJM6Mr+xYuISi2u1DNsYcqEQJi+zrn/iE+yO6FgU5ZGsPOSFRXd85WFmM1dtiCx2w1qEzikUbf1ZhBJ3zDvrvyFtOb5NG8QtkhVUMuB/zl7exTrd1ZkzUTxPkWJ/TjFLTmKZhgMOo3ApQB3CfrU1COUnZpzFLOkneCWfaIonTmVjszzqs4uAGaL3+pA6qYFZ4YTr3CcKl4qdo2Mod79SSF3OLA4sruw2G++7p4wGMxCbYTgciQuwFH8pJkPfI4KmmRSOWuEtn0doW2bVtBBdQkOSRFbaK9BxCs4CaK3aZ7GGVUFZKzGVp8boiNvSh/LksPqoCSahw+ReoAKw=
+
 before_install:
 - mkdir gpg
 - openssl aes-256-cbc -K $encrypted_167c30693707_key -iv $encrypted_167c30693707_iv -in keys/keys.tar.enc -out keys/keys.tar -d
 - tar -xvf keys/keys.tar -C gpg/
+
 after_script:
 - rm -rf gpg
