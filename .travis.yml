@@ -3,7 +3,7 @@ git:
 language: java
 jdk:
   - oraclejdk8
-install: mvn clean compile
+install: mvn clean install -DskipTests -DskipITs=true
 script: mvn verify && mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
 
 before_cache:
