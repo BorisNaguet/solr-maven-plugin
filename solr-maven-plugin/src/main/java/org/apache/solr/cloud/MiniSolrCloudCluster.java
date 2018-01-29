@@ -216,8 +216,6 @@ public class MiniSolrCloudCluster {
     Objects.requireNonNull(securityJson);
     this.baseDir = Objects.requireNonNull(baseDir);
     this.jettyConfig = Objects.requireNonNull(jettyConfig);
-    //remove possible final '/'
-//    String chrootCut = (chroot.endsWith("/") ? chroot.substring(0, chroot.length() - 1) : chroot);
     
     log.info("Starting cluster of {} servers in {}", numServers, baseDir);
 
@@ -233,13 +231,13 @@ public class MiniSolrCloudCluster {
 
     try (SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(), AbstractZkTestCase.TIMEOUT)) {
       if(solrXml != null) {
-        zkClient.makePath(chroot + "solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
+        zkClient.makePath(chroot + "/solr.xml", solrXml.getBytes(Charset.defaultCharset()), true);
       }
       if (jettyConfig.sslConfig != null && jettyConfig.sslConfig.isSSLMode()) {
-        zkClient.makePath(chroot + "clusterprops.json", "{'urlScheme':'https'}".getBytes(StandardCharsets.UTF_8), true);
+        zkClient.makePath(chroot + "/clusterprops.json", "{'urlScheme':'https'}".getBytes(StandardCharsets.UTF_8), true);
       }
       if (securityJson.isPresent()) { // configure Solr security
-        zkClient.makePath(chroot + "security.json", securityJson.get().getBytes(Charset.defaultCharset()), true);
+        zkClient.makePath(chroot + "/security.json", securityJson.get().getBytes(Charset.defaultCharset()), true);
       }
     }
 
@@ -272,7 +270,7 @@ public class MiniSolrCloudCluster {
     try (SolrZkClient zkClient = new SolrZkClient(zkServer.getZkHost(), AbstractZkTestCase.TIMEOUT)) {
       int numliveNodes = 0;
       int retries = timeout;
-      String liveNodesPath = chroot + "live_nodes";
+      String liveNodesPath = chroot + "/live_nodes";
       // Wait up to {timeout} seconds for number of live_nodes to match up number of servers
       do {
         if (zkClient.exists(liveNodesPath, true)) {

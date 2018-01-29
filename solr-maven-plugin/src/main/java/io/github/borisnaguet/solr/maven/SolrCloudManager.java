@@ -105,7 +105,11 @@ public class SolrCloudManager {
 		if (solrCloud != null) {
 			throw new MojoExecutionException("Solr already started");
 		}
-
+		//default value to "" sets it as null...
+		if(chroot == null) {
+			chroot = "";
+		}
+		
 		log.debug("About to startCluster");
 
 		String zkDir = dataDir.resolve("zookeeper/server1/data").toString();
