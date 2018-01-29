@@ -164,11 +164,11 @@ public class SolrCloudManager {
 	 * @param colName collection name to create
 	 * @throws MojoExecutionException Exception
 	 */
-	public synchronized void createCollection(Log log, String colName) throws MojoExecutionException {
+	public synchronized void createCollection(Log log, String colName, int numShards, int replicationFactor) throws MojoExecutionException {
 		log.debug("About to create collection " + colName);
 
 		try {
-			solrCloud.createCollection(colName, 1, 1, configName, null);
+			solrCloud.createCollection(colName, numShards, replicationFactor, configName, null);
 		}
 		catch (SolrServerException | IOException e) {
 			throw new MojoExecutionException("Can't create solr collection " + colName, e);

@@ -59,6 +59,12 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 	@Parameter(property = "solr.create.collections", defaultValue = "true")
 	private boolean createCols;
 	
+	@Parameter(property = "solr.num.shards", defaultValue = "1")
+	private int numShards;
+	
+	@Parameter(property = "solr.repli.factor", defaultValue = "1")
+	private int replicationFactor;
+	
 	@Parameter(property = "solr.keep.running", defaultValue = "false")
 	private boolean keepRunning;
 	
@@ -134,7 +140,7 @@ public class StartSolrCloudMojo extends AbstractSolrMojo {
 		// 4- Create a collection 
 		if(createCols) {
 			for (String col : collectionsToCreate) {
-				cloudManager.createCollection(getLog(), col);
+				cloudManager.createCollection(getLog(), col, numShards, replicationFactor);
 			}
 		}
 		
