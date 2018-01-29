@@ -2,7 +2,8 @@ git:
   depth: 5
 language: java
 jdk:
-- oraclejdk8
+  - oraclejdk8
+
 script: mvn clean verify && mvn clean deploy --settings travis-settings.xml -Prelease -Pgpg -Pextra -DskipTests -DskipITs=true
 
 before_cache:
