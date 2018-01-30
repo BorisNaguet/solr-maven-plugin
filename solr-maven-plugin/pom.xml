@@ -4,12 +4,12 @@
 
 	<groupId>io.github.borisnaguet</groupId>
 	<artifactId>solr-maven-plugin</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.0-SNAPSHOT</version>
 
 	<packaging>maven-plugin</packaging>
 
 	<name>Solr Maven Plugin</name>
-	<description>A maven plugin to start and stop solr cloud</description>
+	<description>A maven plugin to start and stop Apache Solr cloud</description>
 	<url>https://github.com/BorisNaguet/solr-maven-plugin</url>
 
 	<licenses>
@@ -69,12 +69,12 @@
 			<plugin>
 	            <groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-plugin-plugin</artifactId>
-	            <version>3.5</version>
+	            <version>3.5.1</version>
 	        </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.0.2</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -87,7 +87,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.7</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -122,7 +122,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
+				<version>3.0.0</version>
 				<configuration>
 					<quiet>true</quiet>
 					<additionalparam>-Xdoclint:none</additionalparam>
@@ -131,7 +131,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.19.1</version>
+				<version>2.20.1</version>
 				<configuration>
 					<alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
 					<alwaysGenerateFailsafeReport>false</alwaysGenerateFailsafeReport>
@@ -144,7 +144,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.17</version>
+				<version>3.0.0</version>
 				<configuration>
 					<skip>true</skip>
 					<configLocation>config/maven_checks.xml</configLocation>
@@ -154,7 +154,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.4</version>
+				<version>3.5.1</version>
 			</plugin>
 		</plugins>
 	</reporting>
@@ -167,7 +167,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.10.3</version>
+						<version>3.0.0</version>
 						<configuration>
 							<quiet>true</quiet>
 							<additionalparam>-Xdoclint:none</additionalparam>
@@ -183,7 +183,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
 								<goals>
