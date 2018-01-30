@@ -92,7 +92,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-scm-publish-plugin</artifactId>
-				<version>1.1</version>
+				<version>3.0.0</version>
 				<configuration>
 					<checkoutDirectory>${scmPublish.checkoutDirectory}</checkoutDirectory>
 					<checkinComment>Publishing Site Docs for ${project.artifactId}:${project.version}</checkinComment>
