@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/BorisNaguet/solr-maven-plugin.svg?branch=master)](https://travis-ci.org/BorisNaguet/solr-maven-plugin) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.borisnaguet/solr-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.borisnaguet/solr-maven-plugin)
 
-A maven plugin to start/stop Apache Solr Cloud
+A maven plugin to start/stop Apache Solr Cloud.
 
 ## Install
 Releases available on maven Central
@@ -10,7 +10,7 @@ Releases available on maven Central
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </plugin>
 ```
 
@@ -33,7 +33,7 @@ Snapshots (pushed automatically from Travis, on each push) available on Sonatype
 <plugin>
     <groupId>io.github.borisnaguet</groupId>
     <artifactId>solr-maven-plugin</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
 </plugin>
 ```
 
@@ -43,6 +43,8 @@ Please, see `solr-maven-plugin-test` sub-project for a full example:
 * stopping after `tests`
 * starting another configuration (with lots of custom setups) of Solr in `pre-integration-test` (note that **you must enable IT** in the example to see that `<skipITs>false</skipITs>`)
 * stopping it in `post-integration-tests`
+
+You probably need only one of these (tests or integration-tests), and default configuration is probably enough for most usage. 
 
 ```xml
 	<plugin>
@@ -125,12 +127,12 @@ To do that, add that to the plugin definition (just after its groupid:artifactid
 	<dependency>
 		<groupId>org.apache.solr</groupId>
 		<artifactId>solr-analysis-extras</artifactId>
-		<version>5.5.1</version>
+		<version>7.2.1</version>
 	</dependency>
 	<dependency>
 		<groupId>org.apache.solr</groupId>
 		<artifactId>solr-dataimporthandler</artifactId>
-		<version>5.5.1</version>
+		<version>7.2.1</version>
 	</dependency>
 </dependencies>
 ```
@@ -153,16 +155,10 @@ But what if you want to start solr using the same version & config and run tests
 Since version 0.3.0 you can start it with a command line:
 
 ```
-mvn -Dsolr.keep.running=true io.github.borisnaguet:solr-maven-plugin:start-solrcloud
+mvn io.github.borisnaguet:solr-maven-plugin:run
 ```
 
 If you feel it's a bit long, you can use [this trick](https://maven.apache.org/settings.html#Plugin_Groups):
-
-```
-mvn -Dsolr.keep.running=true solr:start-solrcloud
-```
-
-Or use the shortcut:
 
 ```
 mvn solr:run
@@ -182,7 +178,7 @@ After a while you'll see that:
 So it's better to clean stop with **Enter** instead of kill.
 
 ### Solr version
-As is, the plugin starts Solr 6.2.1 (will be updated with time of course).
+As is, the plugin starts Solr 7.2.1 (will be updated with time of course).
 If you need another version, you might try to directly change the "classpath" of the plugin:
 
 These are the only dependencies that you need to update:
@@ -209,11 +205,10 @@ These are the only dependencies that you need to update:
 
 Of course, it can only work until some breaking change is introduced somewhere. Please inform me if this doesn't work on a particular version.
 
-Also please note that Solr 6 requires Java 8 (while this plugin is kept in Java 7 to be able to run Solr 5 on older projects).
+Also please note that Solr 6+ requires Java 8 (Since 0.5.0 this plugin also needs Java 8 - use 0.4.0 if you need to run older release of Solr).
 
 ## To improve
 This plugin is already used in a large professional project, but it could still be improved.
-The main missing feature, is the ability to pick a Solr version: for the moment it's hard-coded in plugin.
 
 ## Build (for maven plugin developpers)
 If you want to fork this project and make changes to the plugin, you'll only need to use `maven install`
