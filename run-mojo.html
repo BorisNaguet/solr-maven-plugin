@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20180130" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Solr Maven Plugin &#x2013; solr:start-solrcloud</title>
+    <title>Solr Maven Plugin &#x2013; solr:run</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.5.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -114,23 +114,22 @@
             
   
     <div class="section">
-<h2><a name="solr:start-solrcloud"></a>solr:start-solrcloud</h2>
+<h2><a name="solr:run"></a>solr:run</h2>
       
 <p><b>Full name</b>:</p>
       
-<p>io.github.borisnaguet:solr-maven-plugin:0.5.0:start-solrcloud</p>
+<p>io.github.borisnaguet:solr-maven-plugin:0.5.0:run</p>
       
 <p><b>Description</b>:</p>
       
-<div>Starts a new SolrCloud instance</div>
+<div>Starts Solrcloud and blocks. This is to be used for command-line
+only This is equivalent to &quot;start-solrcloud -Dsolr.keep.running&quot;</div>
       
 <p><b>Attributes</b>:</p>
       
 <ul>
         
 <li>Requires a Maven project to be executed.</li>
-        
-<li>Binds by default to the <a class="externalLink" href="http://maven.apache.org/ref/current/maven-core/lifecycles.html">lifecycle phase</a>: <tt>pre-integration-test</tt>.</li>
       </ul>
       
 <div class="section">
